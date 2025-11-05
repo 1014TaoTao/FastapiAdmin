@@ -1940,25 +1940,6 @@
         ]
       },
       {
-        "name": "表单构建",
-        "type": 2,
-        "icon": "el-icon-Wallet",
-        "order": 2,
-        "permission": "gencode:gencode:query",
-        "route_name": "webcode",
-        "route_path": "/gencode/webcode",
-        "component_path": "gencode/webcode/index",
-        "status": true,
-        "keep_alive": true,
-        "hidden": false,
-        "always_show": false,
-        "title": "表单构建",
-        "params": null,
-        "affix": false,
-        "redirect": null,
-        "description": "表单构建"
-      },
-      {
         "name": "示例管理",
         "type": 2,
         "icon": "el-icon-DataLine",

@@ -9,29 +9,9 @@
         <el-form-item label="表描述" prop="table_comment">
           <el-input v-model="queryFormData.table_comment" placeholder="请输入表描述" clearable style="width: 200px" @keyup.enter="handleQuery"/>
         </el-form-item>
-        <el-form-item v-if="isExpand" prop="start_time" label="创建时间">
-          <DatePicker
-            v-model="dateRange"
-            @update:model-value="handleDateRangeChange"
-          />
-        </el-form-item>
         <el-form-item class="search-buttons">
           <el-button v-hasPerm="['generator:gencode:query']" type="primary" icon="search" native-type="submit">查询</el-button>
           <el-button v-hasPerm="['generator:gencode:query']" icon="refresh" @click="handleRefresh">重置</el-button>
-          <!-- 展开/收起 -->
-          <template v-if="isExpandable">
-            <el-link class="ml-3" type="primary" underline="never" @click="isExpand = !isExpand">
-              {{ isExpand ? "收起" : "展开" }}
-              <el-icon>
-                <template v-if="isExpand">
-                  <ArrowUp />
-                </template>
-                <template v-else>
-                  <ArrowDown />
-                </template>
-              </el-icon>
-            </el-link>
-          </template>
         </el-form-item>
       </el-form>
     </div>
@@ -288,7 +268,7 @@
             v-loading="loading"
             :data="columns" 
             row-key="id" 
-            :max-height="tableHeight" 
+            max-height="680" 
             highlight--currentrow
             class="data-table__content" 
             border 
@@ -555,7 +535,7 @@
 
         <!-- 第二步：有“上一步”和“下一步” -->
         <el-button v-if="activeStep === 1" type="success" :icon="Back" @click="prevStep">上一步，基础配置</el-button>
-        <el-button v-if="activeStep === 1" type="warning" :icon="Edit" @click="submitForm">保存字段配置</el-button>
+        <el-button v-if="activeStep === 1" v-hasPerm="['generator:gencode:update']" type="warning" :icon="Edit" @click="submitForm">保存字段配置</el-button>
         <el-button v-if="activeStep === 1" type="primary" @click="nextStep">
           下一步，预览代码<el-icon class="el-icon--right"><View /></el-icon>
         </el-button>
@@ -591,7 +571,6 @@ import type { CmComponentRef } from "codemirror-editor-vue3";
 import { ElMessage, ElMessageBox, type FormInstance, type TableInstance } from 'element-plus';
 import { QuestionFilled, MagicStick, View, CopyDocument, Close, Right, FolderOpened, Back, Download, Edit } from '@element-plus/icons-vue';
 import GencodeAPI, { type GenTableOutVO, type DatabaseTable, type GenTableQueryParam, type GenTableColumnOutSchema, type GenTableSchema } from "@/api/generator/gencode";
-import { formatToDateTime } from "@/utils/dateUtil";
 import MenuAPI, { MenuTable } from "@/api/system/menu";
 import DictAPI, { DictTable } from "@/api/system/dict";
 import { formatTree } from "@/utils/common";
@@ -633,10 +612,7 @@ const loading = ref(false);
 const total = ref<number>(0);
 const uniqueId = ref("");
 const editVisible = ref(false);
-const tableHeight = ref<number>(0);
 const activeStep = ref(2);
-const isExpandable = ref(true);
-const isExpand = ref(false);
 
 // UI状态
 const createTableVisible = ref(false);
@@ -724,17 +700,6 @@ const cmOptions: EditorConfiguration = {
   readOnly: true
 };
 
-// 处理日期范围变化
-function handleDateRangeChange(range: [Date, Date]) {
-  dateRange.value = range;
-  if (range && range.length === 2) {
-    queryFormData.start_time = formatToDateTime(range[0]);
-    queryFormData.end_time = formatToDateTime(range[1]);
-  } else {
-    queryFormData.start_time = undefined;
-    queryFormData.end_time = undefined;
-  }
-}
 
 // 工具函数
 const { copy } = useClipboard();
@@ -1032,7 +997,7 @@ function handleImportTableSelectionChange(selection: DatabaseTable[]): void {
 function calculateTableHeight() {
   // 为了确保表格有足够的高度显示，我们设置一个固定的合理值
   // 这里使用400px作为表格高度，这是一个适合大多数屏幕的高度
-  tableHeight.value = 680;
+
 }
 
 // 修改菜单选项过滤逻辑，添加递归过滤函数
@@ -1204,25 +1169,26 @@ onActivated(async () => {
 });
 
 // 表单数据
-const info = reactive<GenTableOutVO>({
+const info = reactive<GenTableSchema>({
   id: undefined,
   table_name: '',
   table_comment: '',
+  sub_table_name: '',
+  sub_table_fk_name: '',
   class_name: '',
   package_name: '',
   module_name: '',
   business_name: '',
   function_name: '',
   gen_type: '0',
-  parent_menu_id: undefined,
+  options: {parent_menu_id: undefined,},
   description: '',
+  parent_menu_id: undefined,
+  parent_menu_name: '',
+  pk_column: undefined,
+  sub_table: undefined,
   columns: [],
   sub: false,
-  tree: false,
-  crud: true,
-  params: {
-    parent_menu_id: undefined,
-  }
 });
 
 // 校验规则
@@ -1240,15 +1206,9 @@ const rules = {
 /** 提交表单 - 保存配置 */
 async function submitForm() {
   
-  // 验证基本信息表单
-  const basicValid = await basicInfo.value?.validate() || false;
-  if (!basicValid) {
-    return;
-  }
-  
-  // 验证生成信息表单
-  const genValid = await genInfo.value?.validate() || false;
-  if (!genValid) {
+  // 检查是否有表ID
+  if (!info.id) {
+    ElMessage.error('无效的表ID');
     return;
   }
   
@@ -1261,22 +1221,12 @@ async function submitForm() {
       return;
     }
     
-    // 设置params参数
-    if (info.parent_menu_id) {
-      info.params = {
-        parent_menu_id: info.parent_menu_id
-      };
-    }
-    
     // 提交表单数据，确保columns是必需的
     const tableData = {
       ...info,
       columns: info.columns || [] // 确保columns存在
     };
     
-    // 清理不需要的字段
-    delete (tableData as any).params;
-    delete (tableData as any).parent_menu_id;
     const response = await GencodeAPI.updateTable(tableData as GenTableSchema, info.id || 0);
     
     if (response?.data?.code === 200) {
@@ -1288,7 +1238,6 @@ async function submitForm() {
   } finally {
     loading.value = false;
   }
-  return false;
 }
 
 

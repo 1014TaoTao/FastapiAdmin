@@ -39,28 +39,31 @@ class Jinja2TemplateUtil:
         返回:
         - Environment: Jinja2 环境对象。
         """
-        if cls._env is None:
-            # 确保模板目录存在
-            template_dir = settings.TEMPLATE_DIR
-            if not os.path.exists(template_dir):
-                raise RuntimeError(f'模板目录不存在: {template_dir}')
+        try:
+            if cls._env is None:
+                # 确保模板目录存在
+                template_dir = settings.TEMPLATE_DIR
+                if not os.path.exists(template_dir):
+                    raise RuntimeError(f'模板目录不存在: {template_dir}')
 
-            cls._env = Environment(
-                loader=FileSystemLoader(settings.TEMPLATE_DIR),
-                autoescape=select_autoescape(['html', 'xml', 'jinja']), # 自动转义HTML
-                trim_blocks=True,   # 删除多余的空行
-                lstrip_blocks=True,  # 删除行首空格
-                keep_trailing_newline=True,  # 保留行尾换行符
-                enable_async=True,  # 开启异步支持  
-            )
-            cls._env.filters.update(
-                {
-                    'camel_to_snake': SnakeCaseUtil.camel_to_snake,
-                    'snake_to_camel': CamelCaseUtil.snake_to_camel,
-                    'get_sqlalchemy_type': cls.get_sqlalchemy_type,
-                }
-            )
-        return cls._env
+                cls._env = Environment(
+                    loader=FileSystemLoader(settings.TEMPLATE_DIR),
+                    autoescape=select_autoescape(['html', 'xml', 'jinja', 'j2']), # 自动转义HTML
+                    trim_blocks=True,   # 删除多余的空行
+                    lstrip_blocks=True,  # 删除行首空格
+                    keep_trailing_newline=True,  # 保留行尾换行符
+                    enable_async=True,  # 开启异步支持  
+                )
+                cls._env.filters.update(
+                    {
+                        'camel_to_snake': SnakeCaseUtil.camel_to_snake,
+                        'snake_to_camel': CamelCaseUtil.snake_to_camel,
+                        'get_sqlalchemy_type': cls.get_sqlalchemy_type,
+                    }
+                )
+            return cls._env
+        except Exception as e:
+            raise RuntimeError(f'初始化Jinja2模板引擎失败: {e}')
     
     @classmethod
     def get_template(cls, template_path: str) -> Template:
@@ -90,36 +93,27 @@ class Jinja2TemplateUtil:
         - Dict[str, Any]: 模板上下文字典。
         """
         # 处理options为None的情况
-        options = gen_table.options or '{}'
-        try:
-            params_obj = json.loads(options)
-        except json.JSONDecodeError:
-            params_obj = {}
-            
+        # if not gen_table.options:
+        #     raise ValueError('请先完善生成配置信息')
         class_name = gen_table.class_name or ''
         module_name = gen_table.module_name or ''
         business_name = gen_table.business_name or ''
         package_name = gen_table.package_name or ''
         function_name = gen_table.function_name or ''
         
-        # 确保pk_column不为None
-        pk_column = gen_table.pk_column
-        if pk_column is None and gen_table.columns:
-            # 如果没有明确的主键列，使用第一个列作为主键
-            pk_column = gen_table.columns[0]
-        
         context = {
             'table_name': gen_table.table_name or '',
+            'table_comment': gen_table.table_comment or '',
             'function_name': function_name if StringUtil.is_not_empty(function_name) else '【请填写功能名称】',
             'class_name': class_name,
             'module_name': module_name,
-            'business_name': business_name.capitalize() if business_name else '',
-            'base_package': cls.get_package_prefix(package_name) if package_name else '',
+            'business_name': business_name.capitalize(),
+            'base_package': cls.get_package_prefix(package_name),
             'package_name': package_name,
             'datetime': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'pk_column': pk_column,
-            'do_import_list': cls.get_import_list(gen_table, "model"),
-            'vo_import_list': cls.get_import_list(gen_table, "schema"),
+            'pk_column': gen_table.pk_column,
+            'model_import_list': cls.get_model_import_list(gen_table),
+            'schema_import_list': cls.get_schema_import_list(gen_table),
             'permission_prefix': cls.get_permission_prefix(module_name, business_name),
             'columns': gen_table.columns or [],
             'table': gen_table,
@@ -127,12 +121,10 @@ class Jinja2TemplateUtil:
             'db_type': settings.DATABASE_TYPE,
             'column_not_add_show': GenConstant.COLUMNNAME_NOT_ADD_SHOW,
             'column_not_edit_show': GenConstant.COLUMNNAME_NOT_EDIT_SHOW,
-            'primary_key': pk_column.python_field if pk_column else ''
         }
 
         return context
     
-
     @classmethod
     def get_template_list(cls):
         """
@@ -156,6 +148,7 @@ class Jinja2TemplateUtil:
         ]
         return templates
     
+
     @classmethod
     def get_file_name(cls, template: str, gen_table: GenTableOutSchema):
         """
@@ -215,42 +208,60 @@ class Jinja2TemplateUtil:
         return package_name[: package_name.rfind('.')] if '.' in package_name else package_name
 
     @classmethod
-    def get_import_list(cls, gen_table: GenTableOutSchema, model_type: str):
+    def get_schema_import_list(cls, gen_table: GenTableOutSchema):
         """
-        获取导入包列表。
+        获取schema模板导入包列表
 
-        参数:
-        - gen_table (GenTableOutSchema): 生成表的配置信息。
-        - model_type (str): 模型类型 ("model" 或 "schema")
-        
-        返回:
-        - List[str]: 导入包列表。
+        :param gen_table: 生成表的配置信息
+        :return: 导入包列表
         """
         columns = gen_table.columns or []
         import_list = set()
-        
-        if model_type == "model":
-            import_list.add('from sqlalchemy import Column')
-            
         for column in columns:
-            column_type = column.column_type or ''
-            if model_type == "schema":
-                # Schema特定导入逻辑
-                if column_type in GenConstant.TYPE_DATE:
-                    import_list.add(f'from datetime import {column_type}')
-                elif column_type == GenConstant.TYPE_DECIMAL:
-                    import_list.add('from decimal import Decimal')
-            else:  # model
-                # Model特定导入逻辑
-                data_type = cls.get_db_type(column_type)
+            if column.python_type in GenConstant.TYPE_DATE:
+                import_list.add(f'from datetime import {column.python_type}')
+            elif column.python_type == GenConstant.TYPE_DECIMAL:
+                import_list.add('from decimal import Decimal')
+        if gen_table.sub:
+            if gen_table.sub_table and gen_table.sub_table.columns:
+                sub_columns = gen_table.sub_table.columns or []
+                for sub_column in sub_columns:
+                    if sub_column.python_type in GenConstant.TYPE_DATE:
+                        import_list.add(f'from datetime import {sub_column.python_type}')
+                    elif sub_column.python_type == GenConstant.TYPE_DECIMAL:
+                        import_list.add('from decimal import Decimal')
+        return cls.merge_same_imports(list(import_list), 'from datetime import')
+
+    @classmethod
+    def get_model_import_list(cls, gen_table: GenTableOutSchema):
+        """
+        获取do模板导入包列表
+
+        :param gen_table: 生成表的配置信息
+        :return: 导入包列表
+        """
+        columns = gen_table.columns or []
+        import_list = set()
+        import_list.add('from sqlalchemy import Column')
+        for column in columns:
+            if column.column_type:
+                data_type = cls.get_db_type(column.column_type)
                 if data_type in GenConstant.COLUMNTYPE_GEOMETRY:
                     import_list.add('from geoalchemy2 import Geometry')
-                sqlalchemy_type = GenConstant.DB_TO_SQLALCHEMY.get(data_type)
-                if sqlalchemy_type:
-                    import_list.add(f'from sqlalchemy import {sqlalchemy_type}')
-                    
-        return cls.merge_same_imports(list(import_list), 
-                                      'from datetime import' if model_type == "schema" else 'from sqlalchemy import')
+                import_list.add(
+                    f'from sqlalchemy import {StringUtil.get_mapping_value_by_key_ignore_case(GenConstant.DB_TO_SQLALCHEMY, data_type)}'
+                )
+        if gen_table.sub:
+            import_list.add('from sqlalchemy import ForeignKey')
+            if gen_table.sub_table and gen_table.sub_table.columns:
+                sub_columns = gen_table.sub_table.columns or []
+                for sub_column in sub_columns:
+                    if sub_column.column_type:
+                        data_type = cls.get_db_type(sub_column.column_type)
+                        import_list.add(
+                            f'from sqlalchemy import {StringUtil.get_mapping_value_by_key_ignore_case(GenConstant.DB_TO_SQLALCHEMY, data_type)}'
+                        )
+        return cls.merge_same_imports(list(import_list), 'from sqlalchemy import')
 
     @classmethod
     def get_db_type(cls, column_type: str) -> str:
@@ -367,10 +378,23 @@ class Jinja2TemplateUtil:
         返回:
         - str: SQLAlchemy 类型字符串。
         """
-        column_type = getattr(column, 'column_type', str(column))
-        if not column_type:
-            return "String"
-        
-        # 直接映射，简化逻辑
-        base_type = column_type.split('(')[0] if '(' in column_type else column_type
-        return GenConstant.DB_TO_SQLALCHEMY.get(base_type, "String")
+        if '(' in column:
+            column_type_list = column.split('(')
+            if column_type_list[0] in GenConstant.COLUMNTYPE_STR:
+                sqlalchemy_type = (
+                    StringUtil.get_mapping_value_by_key_ignore_case(
+                        GenConstant.DB_TO_SQLALCHEMY, column_type_list[0]
+                    )
+                    + '('
+                    + column_type_list[1]
+                )
+            else:
+                sqlalchemy_type = StringUtil.get_mapping_value_by_key_ignore_case(
+                    GenConstant.DB_TO_SQLALCHEMY, column_type_list[0]
+                )
+        else:
+            sqlalchemy_type = StringUtil.get_mapping_value_by_key_ignore_case(
+                GenConstant.DB_TO_SQLALCHEMY, column
+            )
+
+        return sqlalchemy_type

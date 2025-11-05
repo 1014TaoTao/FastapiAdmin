@@ -81,12 +81,7 @@ class GenTableCRUD(CRUDBase[GenTableModel, GenTableSchema, GenTableSchema]):
         - Sequence[GenTableModel]: 业务表列表信息。
         """
         # 使用基础CRUD的list与like检索
-        search_dict: Dict = {}
-        if search and search.table_name:
-            search_dict["table_name"] = ("like", search.table_name)
-        if search and search.table_comment:
-            search_dict["table_comment"] = ("like", search.table_comment)
-        return await self.list(search=search_dict, order_by=[{"created_at": "desc"}], preload=preload)
+        return await self.list(search=search.__dict__, order_by=[{"created_at": "desc"}], preload=preload)
 
     async def add_gen_table(self, add_model: GenTableSchema) -> GenTableModel:
         """
@@ -111,7 +106,9 @@ class GenTableCRUD(CRUDBase[GenTableModel, GenTableSchema, GenTableSchema]):
         返回:
         - GenTableSchema: 修改后的业务表信息模型。
         """
-        obj = await self.update(id=table_id, data=edit_model)
+        # 排除嵌套对象字段，避免SQLAlchemy尝试直接将字典设置到模型实例上
+        data_dict = edit_model.model_dump(exclude_unset=True, exclude={"columns", "pk_column", "sub_table", "sub"})
+        obj = await self.update(id=table_id, data=data_dict)
         return GenTableSchema.model_validate(obj)
 
     async def delete_gen_table(self, ids: List[int]) -> None:
@@ -520,7 +517,9 @@ class GenTableColumnCRUD(CRUDBase[GenTableColumnModel, GenTableColumnSchema, Gen
         返回:
         - Optional[GenTableColumnModel]: 业务表字段列表信息对象。
         """
-        return await self.update(id=id, data=data)
+        # 将对象转换为字典，避免SQLAlchemy直接操作对象时出现的状态问题
+        data_dict = data.model_dump(exclude_unset=True)
+        return await self.update(id=id, data=data_dict)
 
     async def delete_gen_table_column_by_table_id_dao(self, table_ids: List[int]) -> None:
         """根据业务表ID批量删除业务表字段。

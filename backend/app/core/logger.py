@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import sys
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
+import re
 
 from app.config.setting import settings
 
@@ -26,25 +26,30 @@ class AppLogger:
         )
         handler.setLevel(level)
         handler.setFormatter(formatter)
-        handler.suffix = "%Y-%m-%d.log"
+        handler.suffix = "_%Y-%m-%d.log"  # 设置正确的后缀格式
 
         def namer(default_name: str) -> str:
-            parts = Path(default_name).name.split(".")
-            if len(parts) >= 3 and parts[-1] == "log":
-                ts = parts[-2]
-                return str(Path(default_name).with_name(f"{stem}_{ts}.log"))
+            # 统一处理轮转后的文件名，确保格式为stem_YYYY-MM-DD.log
+            file_name = Path(default_name).name
+            # 提取日期部分
+            base_name = file_name.split('.')[0]  # 获取基本名称（不包含扩展名）
+            date_match = re.search(r'(\d{4}-\d{2}-\d{2})', base_name)
+            if date_match:
+                date_part = date_match.group(1)
+                return f"{stem}_{date_part}.log"
+            
+            # 如果没有找到日期部分，返回原始名称
             return default_name
 
+        def rotator(source: str, dest: str) -> None:
+            # 确保目录存在
+            Path(dest).parent.mkdir(parents=True, exist_ok=True)
+            # 重命名文件
+            Path(source).rename(dest)
+        
         handler.namer = namer
+        handler.rotator = rotator
         return handler
-
-    def _install_excepthook(self) -> None:
-        def excepthook(exc_type, exc_value, exc_tb):
-            if issubclass(exc_type, KeyboardInterrupt):
-                return
-            self._logger.error("未捕获的异常", exc_info=(exc_type, exc_value, exc_tb))
-
-        sys.excepthook = excepthook
 
     def configure(self) -> logging.Logger:
         if self._configured:
@@ -69,9 +74,6 @@ class AppLogger:
         console.setLevel(settings.LOGGER_LEVEL)
         console.setFormatter(formatter)
         self._logger.addHandler(console)
-
-        # 全局异常钩子
-        self._install_excepthook()
 
         self._configured = True
         return self._logger

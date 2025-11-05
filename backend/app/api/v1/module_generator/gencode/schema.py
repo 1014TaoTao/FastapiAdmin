@@ -37,19 +37,18 @@ class GenTableBaseSchema(BaseModel):
     """
     model_config = ConfigDict(from_attributes=True)
 
-    table_id: Optional[int] =  Field(default=None, description='编号')
     table_name: str= Field(..., description='表名称')
     table_comment: Optional[str] = Field(default=None, description='表描述')
+    sub_table_name: Optional[str] = Field(default=None, description='关联子表的表名')
+    sub_table_fk_name: Optional[str] = Field(default=None, description='子表关联的外键名')
     class_name: Optional[str] = Field(default=None, description='实体类名称')
     package_name: Optional[str] = Field(default=None, description='生成包路径')
     module_name: Optional[str] = Field(default=None, description='生成模块名')
     business_name: Optional[str] = Field(default=None, description='生成业务名')
     function_name: Optional[str] = Field(default=None, description='生成功能名')
     gen_type: Optional[Literal['0', '1']] = Field(default=None, description='生成代码方式（0zip压缩包 1生成项目路径）')
-    options: Optional[str] = Field(default=None, description='其它生成选项')
+    options: Optional[str] = Field(default=None, description='其它生成选项（JSON字符串）')
     description: Optional[str] = Field(default=None, description='功能描述')
-
-    params: Optional[GenTableOptionSchema] = Field(default=None, description='前端传递过来的表附加信息，转换成json字符串后放到options')
 
 
 class GenTableSchema(GenTableBaseSchema):
@@ -62,6 +61,7 @@ class GenTableSchema(GenTableBaseSchema):
     columns: Optional[List['GenTableColumnOutSchema']] = Field(default=None, description='表列信息')
     parent_menu_id: Optional[int] = Field(default=None, description='上级菜单ID字段')
     parent_menu_name: Optional[str] = Field(default=None, description='上级菜单名称字段')
+    sub: Optional[bool] = Field(default=None, description='是否为子表')
 
 
 class GenTableOutSchema(GenTableSchema, BaseSchema):
@@ -70,9 +70,6 @@ class GenTableOutSchema(GenTableSchema, BaseSchema):
     - 兼容：既支持传入ORM对象，也支持字典输入。
     """
     model_config = ConfigDict(from_attributes=True)
-    
-    # 修复：确保columns字段默认为空列表而不是None
-    columns: Optional[List['GenTableColumnOutSchema']] = Field(default_factory=list, description='表列信息')
 
 
 class GenTableColumnSchema(BaseModel):

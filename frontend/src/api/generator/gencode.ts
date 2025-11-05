@@ -153,6 +153,10 @@ export interface GenTableOutVO {
   table_name?: string;
   /** 表描述 */
   table_comment?: string;
+  /** 关联子表的表名 */
+  sub_table_name?: string;
+  /** 关联子表的外键名 */
+  sub_table_fk_name?: string;
   /** 实体类名称 */
   class_name?: string;
   /** 生成包路径 */
@@ -166,23 +170,7 @@ export interface GenTableOutVO {
   /** 生成代码方式（0zip压缩包 1自定义路径） */
   gen_type?: string;
   /** 其它生成选项 */
-  options?: string;
-  /** 上级菜单ID字段 */
-  parent_menu_id?: number;
-  /** 上级菜单名称字段 */
-  parent_menu_name?: string;
-  /** 是否为子表 */
-  sub?: boolean;
-  /** 是否为树表 */
-  tree?: boolean;
-  /** 是否为单表 */
-  crud?: boolean;
-  /** 表描述 */
-  description?: string;
-  /** 列列表 */
-  columns?: GenTableColumnOutSchema[];
-  /** 参数选项 */
-  params?: GenTableOptionModel;
+  options?: GenTableOptionModel;
 }
 
 /** 表选项模型 */
@@ -193,12 +181,20 @@ export interface GenTableOptionModel {
 
 /** 代码生成业务表模型 */
 export interface GenTableSchema extends GenTableOutVO {
+  /** 表描述 */
+  description?: string;
+  /** 上级菜单ID字段 */
+  parent_menu_id?: number;
+  /** 上级菜单名称字段 */
+  parent_menu_name?: string;
   /** 主键信息 */
   pk_column?: GenTableColumnOutSchema;
   /** 子表信息 */
   sub_table?: GenTableSchema;
   /** 表列信息 */
   columns: GenTableColumnOutSchema[];
+  /** 是否为子表 */
+  sub?: boolean;
 }
 
 /** 代码生成业务表列模型 */
@@ -325,5 +321,5 @@ export interface BasicInfoFormData {
   table_name?: string;
   table_comment?: string;
   class_name?: string;
-  remark?: string;
+  description?: string;
 }

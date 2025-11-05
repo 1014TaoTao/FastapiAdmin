@@ -4,7 +4,9 @@ from typing import Optional, List
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.config.setting import settings
 from app.core.base_model import CreatorMixin
+from app.utils.common_util import SqlalchemyUtil
 
 
 class GenTableModel(CreatorMixin):
@@ -17,6 +19,8 @@ class GenTableModel(CreatorMixin):
 
     table_name: Mapped[Optional[str]] = mapped_column(String(200), nullable=True, default='', comment='表名称')
     table_comment: Mapped[Optional[str]] = mapped_column(String(500), nullable=True, default='', comment='表描述')
+    sub_table_name : Mapped[Optional[str]] = mapped_column(String(64), nullable=True, server_default=SqlalchemyUtil.get_server_default_null(settings.DATABASE_TYPE), comment='关联子表的表名',)
+    sub_table_fk_name: Mapped[Optional[str]] = mapped_column(String(64), nullable=True, server_default=SqlalchemyUtil.get_server_default_null(settings.DATABASE_TYPE), comment='子表关联的外键名',)
     class_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, default='', comment='实体类名称')
     package_name: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, comment='生成包路径')
     module_name: Mapped[Optional[str]] = mapped_column(String(30), nullable=True, comment='生成模块名')

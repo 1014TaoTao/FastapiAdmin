@@ -286,6 +286,9 @@ class Settings(BaseSettings):
     @property
     def UVICORN_CONFIG(self) -> Dict[str, Any]:
         """获取Uvicorn配置"""
+        # 确保日志目录存在
+        self.LOGGER_DIR.mkdir(parents=True, exist_ok=True)
+        
         return {
             "host": self.SERVER_HOST,
             "port": self.SERVER_PORT,
