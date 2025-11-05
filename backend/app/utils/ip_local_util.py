@@ -36,7 +36,7 @@ class IpLocalUtil:
         返回:
         - bool: 是否为内网IP。
         """
-        priv_pattern = r'^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)'
+        priv_pattern = r'^(127\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)'
         return bool(re.match(priv_pattern, ip))
 
     @classmethod
