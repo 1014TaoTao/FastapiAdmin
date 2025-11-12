@@ -158,7 +158,7 @@
       {
         "name": "租户管理",
         "type": 2,
-        "icon": "el-icon-DataLine",
+        "icon": "el-icon-Avatar",
         "order": 3,
         "permission": "module_system:tenant:query",
         "route_name": "Tenant",

@@ -15,7 +15,7 @@ from app.core.logger import logger
 from app.core.exceptions import CustomException
 
 
-def worship() -> str | None:
+def worship() -> None:
     """
     获取项目启动Banner（优先读取 banner.txt）
     """
@@ -24,7 +24,7 @@ def worship() -> str | None:
         raw = banner_file.read_text(encoding='utf-8')
         # 支持文件内使用 {TITLE} / {VERSION} 等占位符
         banner = raw.format(TITLE=settings.TITLE, VERSION=settings.VERSION)
-        return banner
+        logger.info(banner)
 
 def import_module(module: str, desc: str) -> Any:
     """

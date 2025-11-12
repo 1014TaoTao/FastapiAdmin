@@ -34,8 +34,6 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     返回:
     - AsyncGenerator[Any, Any]: 生命周期上下文生成器。
     """
-    logger.info(worship())
-    
     await InitializeData().init_db()
     logger.info(f"✅️ 初始化 {settings.DATABASE_TYPE} 数据库初始化完成...")
     await import_modules_async(modules=settings.EVENT_LIST, desc="全局事件", app=app, status=True)
@@ -46,19 +44,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     logger.info('✅️ 初始化Redis数据字典完成...')
     await SchedulerUtil.init_system_scheduler()
     logger.info('✅️ 初始化定时任务完成...')
-    scheduler_status = SchedulerUtil.get_job_status()
-    scheduler_jobs = len(SchedulerUtil.get_all_jobs())
-
-    logger.info(f'✅️ {settings.TITLE} 服务成功启动...')
-    # 控制台输出优化：展示服务信息与文档地址
+    
     console_run(
         host=settings.SERVER_HOST,
         port=settings.SERVER_PORT,
         reload=settings.RELOAD,
         workers=settings.WORKERS,
         redis_ready=True,
-        scheduler_jobs=scheduler_jobs,
-        scheduler_status=scheduler_status,
+        scheduler_jobs=len(SchedulerUtil.get_all_jobs()),
+        scheduler_status=SchedulerUtil.get_job_status(),
     )
 
     yield

@@ -452,6 +452,6 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 .chart-container {
-  height: 365px;
+  height: 406px;
 }
 </style>

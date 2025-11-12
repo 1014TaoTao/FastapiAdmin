@@ -1,90 +1,116 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from logging.handlers import TimedRotatingFileHandler
+import sys
 from pathlib import Path
-import re
+from loguru import logger
 
 from app.config.setting import settings
+from app.utils.common_util import worship
 
+class InterceptHandler(logging.Handler):
+    """
+    日志拦截处理器：将所有 Python 标准日志重定向到 Loguru
+    
+    工作原理：
+    1. 继承自 logging.Handler
+    2. 重写 emit 方法处理日志记录
+    3. 将标准库日志转换为 Loguru 格式
+    """
+    def emit(self, record: logging.LogRecord) -> None:
+        # 尝试获取日志级别名称
+        try:
+            level = logger.level(record.levelname).name
+        except ValueError:
+            level = record.levelno
 
-class AppLogger:
-    """应用级日志管理器：一次性配置 + 获取。"""
+        # 获取调用帧信息，增加None检查
+        frame, depth = logging.currentframe(), 2
+        if frame is not None:
+            while frame and frame.f_code.co_filename == logging.__file__:
+                frame = frame.f_back
+                depth += 1
 
-    def __init__(self) -> None:
-        self._logger = logging.getLogger(__name__)
-        self._configured = False
-
-    def _create_file_handler(self, stem: str, level: int, log_dir: Path, formatter: logging.Formatter) -> TimedRotatingFileHandler:
-        file_path = log_dir / f"{stem}.log"
-        handler = TimedRotatingFileHandler(
-            filename=str(file_path),
-            when=settings.WHEN,
-            interval=settings.INTERVAL,
-            backupCount=settings.BACKUPCOUNT,
-            encoding=settings.ENCODING,
+        # 使用 Loguru 记录日志
+        logger.opt(depth=depth, exception=record.exc_info).log(
+            level,
+            record.getMessage()
         )
-        handler.setLevel(level)
-        handler.setFormatter(formatter)
-        handler.suffix = "_%Y-%m-%d.log"  # 设置正确的后缀格式
 
-        def namer(default_name: str) -> str:
-            # 统一处理轮转后的文件名，确保格式为stem_YYYY-MM-DD.log
-            file_name = Path(default_name).name
-            # 提取日期部分
-            base_name = file_name.split('.')[0]  # 获取基本名称（不包含扩展名）
-            date_match = re.search(r'(\d{4}-\d{2}-\d{2})', base_name)
-            if date_match:
-                date_part = date_match.group(1)
-                return f"{stem}_{date_part}.log"
-            
-            # 如果没有找到日期部分，返回原始名称
-            return default_name
+def setup_logging():
+    """
+    配置日志系统
+    
+    功能：
+    1. 控制台彩色输出
+    2. 文件日志轮转
+    3. 错误日志单独存储
+    4. 异步日志记录
+    """
+    # 添加上下文信息
+    logger.configure(extra={"app_name": "FastapiAdmin"})
+    # 步骤1：移除默认处理器
+    logger.remove()
 
-        def rotator(source: str, dest: str) -> None:
-            # 确保目录存在
-            Path(dest).parent.mkdir(parents=True, exist_ok=True)
-            # 重命名文件
-            Path(source).rename(dest)
-        
-        handler.namer = namer
-        handler.rotator = rotator
-        return handler
+    # 步骤2：定义日志格式
+    log_format = (
+        # 时间信息
+        "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
+        # 日志级别，居中对齐
+        "<level>{level: <8}</level> | "
+        # 文件、函数和行号
+        "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - "
+        # 日志消息
+        "<level>{message}</level>"
+    )
 
-    def configure(self) -> logging.Logger:
-        if self._configured:
-            return self._logger
+    # 步骤3：配置控制台输出
+    logger.add(
+        sys.stdout,
+        format=log_format,
+        level="DEBUG" if settings.DEBUG else "INFO",
+        enqueue=True,        # 启用异步写入
+        backtrace=True,      # 显示完整的异常回溯
+        diagnose=True,       # 显示变量值等诊断信息
+        colorize=True        # 启用彩色输出
+    )
 
-        # 基础设置
-        self._logger.setLevel(settings.LOGGER_LEVEL)
-        self._logger.handlers.clear()
-        self._logger.propagate = False
+    # 步骤4：创建日志目录
+    log_dir = Path(settings.LOGGER_DIR)
+    # 确保日志目录存在,如果不存在则创建
+    log_dir.mkdir(parents=True, exist_ok=True)
 
-        # 目录与格式
-        log_dir = Path(settings.LOGGER_DIR)
-        log_dir.mkdir(parents=True, exist_ok=True)
-        formatter = logging.Formatter(settings.LOGGER_FORMAT)
+    # 步骤5：配置常规日志文件
+    logger.add(
+        str(log_dir / "info.log"),
+        format=log_format,
+        level="INFO",
+        rotation="00:00",  # 每天午夜轮转
+        retention=settings.LOG_RETENTION_DAYS,
+        compression="gz",
+        encoding=settings.ENCODING,
+        enqueue=True
+    )
 
-        # 文件处理器
-        self._logger.addHandler(self._create_file_handler("info", logging.INFO, log_dir, formatter))
-        self._logger.addHandler(self._create_file_handler("error", logging.ERROR, log_dir, formatter))
+    # 步骤6：配置错误日志文件
+    logger.add(
+        str(log_dir / "error.log"),
+        format=log_format,
+        level="ERROR",
+        rotation="00:00",  # 每天午夜轮转
+        retention=settings.LOG_RETENTION_DAYS,
+        compression="gz",
+        encoding=settings.ENCODING,
+        enqueue=True,
+        backtrace=True,
+        diagnose=True
+    )
 
-        # 控制台处理器
-        console = logging.StreamHandler()
-        console.setLevel(settings.LOGGER_LEVEL)
-        console.setFormatter(formatter)
-        self._logger.addHandler(console)
-
-        self._configured = True
-        return self._logger
-
-    def get_logger(self) -> logging.Logger:
-        return self.configure()
-
-def get_logger() -> logging.Logger:
-    AL = AppLogger()
-    return AL.get_logger()
-
-
-# 模块级兼容实例
-logger = get_logger()
+    # 步骤7：配置标准库日志
+    logging.basicConfig(handlers=[InterceptHandler()], level=settings.LOGGER_LEVEL, force=True)
+    logger_name_list = [name for name in logging.root.manager.loggerDict]
+    # 步骤8：配置第三方库日志
+    for logger_name in logger_name_list:
+        _logger = logging.getLogger(logger_name)
+        _logger.handlers = [InterceptHandler()]
+        _logger.propagate = False
