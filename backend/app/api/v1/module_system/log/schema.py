@@ -23,25 +23,6 @@ class OperationLogCreateSchema(BaseModel):
     description: Optional[str] = Field(default=None, max_length=255, description="描述")
     creator_id: Optional[int] = Field(default=None, description="创建人ID")
 
-    @model_validator(mode='before')
-    @classmethod
-    def _normalize(cls, values):
-        if isinstance(values, dict):
-            # 字符串去空格
-            for k in ["request_path", "request_method", "request_payload", "request_ip", "login_location", "request_os", "request_browser", "response_json", "process_time", "description"]:
-                if k in values and isinstance(values[k], str):
-                    values[k] = values[k].strip() or None if values[k].strip() == "" and k in {"request_payload", "response_json", "description"} else values[k].strip()
-            # 方法大写
-            if "request_method" in values and isinstance(values["request_method"], str):
-                values["request_method"] = values["request_method"].strip().upper()
-            # 响应码转整数
-            if "response_code" in values and isinstance(values["response_code"], str):
-                try:
-                    values["response_code"] = int(values["response_code"].strip())
-                except Exception:
-                    pass
-        return values
-
     @field_validator("type")
     @classmethod
     def _validate_type(cls, value: Optional[int]):

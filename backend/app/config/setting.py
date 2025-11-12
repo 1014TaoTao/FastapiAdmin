@@ -272,47 +272,7 @@ class Settings(BaseSettings):
             "host": self.SERVER_HOST,
             "port": self.SERVER_PORT,
             "reload": self.RELOAD,
-            "log_config": {
-                "version": 1,
-                "disable_existing_loggers": False,
-                "formatters": {
-                    "default": {
-                        "()": "uvicorn.logging.DefaultFormatter",
-                        "fmt": self.LOGGER_FORMAT,
-                        "use_colors": None,
-                    },
-                    "access": {
-                        "()": "uvicorn.logging.AccessFormatter",
-                        "fmt": self.LOGGER_FORMAT,
-                    },
-                },
-                "handlers": {
-                    "console": {
-                        "formatter": "default",
-                        "class": "logging.StreamHandler",
-                        "stream": "ext://sys.stderr",
-                    },
-                    "access_console": {
-                        "formatter": "access",
-                        "class": "logging.StreamHandler",
-                        "stream": "ext://sys.stdout",
-                    },
-                    "file": {
-                        "formatter": "default",
-                        "class": "logging.handlers.TimedRotatingFileHandler",
-                        "filename": str(self.LOGGER_DIR.joinpath("info.log")),
-                        "when": self.WHEN,
-                        "interval": self.INTERVAL,
-                        "backupCount": self.BACKUPCOUNT,
-                        "encoding": self.ENCODING,
-                    },
-                },
-                "loggers": {
-                    "uvicorn": {"handlers": ["file", "console"], "level": self.LOGGER_LEVEL, "propagate": False},
-                    "uvicorn.error": {"handlers": ["file", "console"], "level": self.LOGGER_LEVEL, "propagate": False},
-                    "uvicorn.access": {"handlers": ["file", "access_console"], "level": self.LOGGER_LEVEL, "propagate": False},
-                },
-            },
+            "log_config": None,
             "workers": self.WORKERS,
             "limit_concurrency": self.LIMIT_CONCURRENCY,
             "backlog": self.BACKLOG,

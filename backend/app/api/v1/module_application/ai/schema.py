@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any
 from pydantic import ConfigDict, Field, HttpUrl, BaseModel
 
 from app.core.base_schema import BaseSchema
-from app.common.enums import McpLLMProvider, McpType
+from app.common.enums import McpType
 
 
 class ChatQuerySchema(BaseModel):

@@ -67,7 +67,7 @@
       </div>
 
       <!-- 表格区域：系统配置列表 -->
-      <el-table ref="dataTableRef" v-loading="loading" :data="pageTableData" highlight-current-row class="data-table__content" height="450" border stripe @selection-change="handleSelectionChange">
+      <el-table ref="dataTableRef" v-loading="loading" :data="pageTableData" highlight-current-row class="data-table__content" :height="450" border stripe @selection-change="handleSelectionChange">
         <template #empty>
           <el-empty :image-size="80" description="暂无数据" />
         </template>

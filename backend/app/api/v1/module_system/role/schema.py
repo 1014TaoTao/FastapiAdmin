@@ -30,38 +30,6 @@ class RoleCreateSchema(BaseModel):
             raise ValueError("角色编码需字母开头，允许字母/数字/下划线，长度2-40")
         return v
 
-    @field_validator("name")
-    @classmethod
-    def validate_name(cls, value: str):
-        v = value.strip()
-        if not v:
-            raise ValueError("角色名称不能为空")
-        return v
-
-    @model_validator(mode='before')
-    @classmethod
-    def _normalize(cls, values):
-        if isinstance(values, dict):
-            for k in ["name", "code", "description"]:
-                if k in values and isinstance(values[k], str):
-                    values[k] = values[k].strip() or None if values[k].strip() == "" else values[k].strip()
-            # bool 兼容
-            if "status" in values and isinstance(values["status"], str):
-                values["status"] = values["status"].strip().lower() in {"true", "1", "yes", "y"}
-            # 数字兼容
-            if "order" in values and isinstance(values["order"], str):
-                try:
-                    values["order"] = int(values["order"].strip())
-                except Exception:
-                    pass
-        return values
-
-    @model_validator(mode='after')
-    def _validate_after(self):
-        if self.status is False and (not self.description or not str(self.description).strip()):
-            raise ValueError("禁用状态下必须填写描述")
-        return self
-
 
 class RolePermissionSettingSchema(BaseModel):
     """角色权限配置模型"""
@@ -69,18 +37,6 @@ class RolePermissionSettingSchema(BaseModel):
     role_ids: List[int] = Field(default_factory=list, description='角色ID列表')
     menu_ids: List[int] = Field(default_factory=list, description='菜单ID列表')
     dept_ids: List[int] = Field(default_factory=list, description='部门ID列表')
-    
-    @model_validator(mode='before')
-    @classmethod
-    def _normalize(cls, values):
-        if isinstance(values, dict):
-            for k in ["role_ids", "menu_ids", "dept_ids"]:
-                if k in values and values[k] is not None:
-                    try:
-                        values[k] = list({int(x) for x in values[k]})
-                    except Exception:
-                        pass
-        return values
     
     @model_validator(mode='after')
     def validate_fields(self):

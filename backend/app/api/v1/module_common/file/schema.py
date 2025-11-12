@@ -48,19 +48,6 @@ class ImportModel(BaseModel):
     filed_info: Optional[list[ImportFieldModel]] = Field(description='字段关联表')
     file_name: Optional[str] = Field(description='文件名')
 
-    @model_validator(mode='before')
-    @classmethod
-    def _normalize(cls, data):
-        if isinstance(data, dict):
-            for key in ('table_name', 'sheet_name', 'file_name'):
-                val = data.get(key)
-                if isinstance(val, str):
-                    val = val.strip()
-                    if val == '':
-                        val = None
-                    data[key] = val
-        return data
-
     @model_validator(mode='after')
     def _validate(self):
         # excel_column 不重复（忽略 None）

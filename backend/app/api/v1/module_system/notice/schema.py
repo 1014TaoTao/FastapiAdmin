@@ -14,25 +14,6 @@ class NoticeCreateSchema(BaseModel):
     status: bool = Field(default=True, description="是否启用(True:启用 False:禁用)")
     description: Optional[str] = Field(default=None, max_length=255, description="描述")
 
-    @model_validator(mode='before')
-    @classmethod
-    def _normalize(cls, values):
-        if isinstance(values, dict):
-            # 字符串去空格
-            for k in ["notice_title", "notice_type", "notice_content", "description"]:
-                if k in values and isinstance(values[k], str):
-                    values[k] = values[k].strip() or None if values[k].strip() == "" and k == "description" else values[k].strip()
-            # 布尔兼容
-            if "status" in values and isinstance(values["status"], str):
-                values["status"] = values["status"].strip().lower() in {"true", "1", "yes", "y"}
-            # 类型映射
-            mapping = {"1": "1", "2": "2", "通知": "1", "公告": "2", "notice": "1", "announcement": "2"}
-            if "notice_type" in values and isinstance(values["notice_type"], str):
-                v = values["notice_type"].strip().lower()
-                if v in mapping:
-                    values["notice_type"] = mapping[v]
-        return values
-
     @field_validator("notice_type")
     @classmethod
     def _validate_notice_type(cls, value: str):
@@ -46,8 +27,6 @@ class NoticeCreateSchema(BaseModel):
             raise ValueError("公告标题不能为空")
         if not self.notice_content.strip():
             raise ValueError("公告内容不能为空")
-        if self.status is False and (not self.description or not str(self.description).strip()):
-            raise ValueError("禁用状态下必须填写描述")
         return self
 
 

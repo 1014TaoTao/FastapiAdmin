@@ -1,5 +1,5 @@
 import re
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from typing import Optional
 
 from app.core.base_schema import BaseSchema
@@ -54,25 +54,16 @@ class DictDataCreateSchema(BaseModel):
     is_default: Optional[bool] = Field(default=None, description='是否默认（Y是 N否）')
     status: Optional[bool] = Field(default=None, description='状态（1正常 0停用）')
     description: Optional[str] = Field(default=None, max_length=255, description="描述")
-
-    @field_validator('dict_label')
-    @classmethod
-    def validate_dict_label(cls, value: str):
-        if not value or value.strip() == '':
+    
+    @model_validator(mode='after')
+    def validate_after(self):
+        if self.dict_label is None or self.dict_label.strip() == '':
             raise ValueError('字典标签不能为空')
-        return value
-
-    @field_validator('dict_value')
-    def validate_dict_value(cls, value: str):
-        if not value or value.strip() == '':
+        if self.dict_value is None or self.dict_value.strip() == '':
             raise ValueError('字典键值不能为空')
-        return value
-
-    @field_validator('dict_type')
-    def validate_dict_type(cls, value: str):
-        if not value or value.strip() == '':
+        if self.dict_type is None or self.dict_type.strip() == '':
             raise ValueError('字典类型不能为空')
-        return value
+        return self
 
 
 class DictDataUpdateSchema(DictDataCreateSchema):

@@ -1,260 +1,260 @@
-<!-- 演示示例 -->
+<!-- 租户 -->
 <template>
-    <div class="app-container">
-      <!-- 搜索区域 -->
-      <div v-show="visible" class="search-container">
-        <el-form
-          ref="queryFormRef"
-          :model="queryFormData"
-          label-suffix=":"
-          :inline="true"
-          @submit.prevent="handleQuery"
-        >
-          <el-form-item prop="name" label="名称">
-            <el-input v-model="queryFormData.name" placeholder="请输入名称" clearable />
-          </el-form-item>
-          <el-form-item prop="status" label="状态" >
-            <el-select v-model="queryFormData.status" placeholder="请选择状态" style="width: 170px;" clearable>
-              <el-option value="true" label="启用" />
-              <el-option value="false" label="停用" />
-            </el-select>
-          </el-form-item>
-          <el-form-item v-if="isExpand" prop="creator" label="创建人">
-            <UserTableSelect
-                v-model="queryFormData.creator"
-                @confirm-click="handleConfirm"
-                @clear-click="handleQuery"
-            />
-          </el-form-item>
-          <!-- 时间范围，收起状态下隐藏 -->
-          <el-form-item v-if="isExpand" prop="start_time" label="创建时间">
-            <DatePicker
-              v-model="dateRange"
-              @update:model-value="handleDateRangeChange"
-            />
-          </el-form-item>
-          <!-- 查询、重置、展开/收起按钮 -->
-          <el-form-item >
-            <el-button
-              v-hasPerm="['module_generator:tenant:query']"
-              type="primary"
-              icon="search"
-              @click="handleQuery"
-            >
-              查询
-            </el-button>
-            <el-button
-              v-hasPerm="['module_generator:tenant:query']"
-              icon="refresh"
-              @click="handleResetQuery"
-            >
-              重置
-            </el-button>
-            <!-- 展开/收起 -->
-            <template v-if="isExpandable">
-              <el-link class="ml-3" type="primary" underline="never" @click="isExpand = !isExpand">
-                {{ isExpand ? "收起" : "展开" }}
-                <el-icon>
-                  <template v-if="isExpand">
-                    <ArrowUp />
+  <div class="app-container">
+    <!-- 搜索区域 -->
+    <div v-show="visible" class="search-container">
+      <el-form
+        ref="queryFormRef"
+        :model="queryFormData"
+        label-suffix=":"
+        :inline="true"
+        @submit.prevent="handleQuery"
+      >
+        <el-form-item prop="name" label="名称">
+          <el-input v-model="queryFormData.name" placeholder="请输入名称" clearable />
+        </el-form-item>
+        <el-form-item prop="status" label="状态" >
+          <el-select v-model="queryFormData.status" placeholder="请选择状态" style="width: 170px;" clearable>
+            <el-option value="true" label="启用" />
+            <el-option value="false" label="停用" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="isExpand" prop="creator" label="创建人">
+          <UserTableSelect
+              v-model="queryFormData.creator"
+              @confirm-click="handleConfirm"
+              @clear-click="handleQuery"
+          />
+        </el-form-item>
+        <!-- 时间范围，收起状态下隐藏 -->
+        <el-form-item v-if="isExpand" prop="start_time" label="创建时间">
+          <DatePicker
+            v-model="dateRange"
+            @update:model-value="handleDateRangeChange"
+          />
+        </el-form-item>
+        <!-- 查询、重置、展开/收起按钮 -->
+        <el-form-item >
+          <el-button
+            v-hasPerm="['module_generator:tenant:query']"
+            type="primary"
+            icon="search"
+            @click="handleQuery"
+          >
+            查询
+          </el-button>
+          <el-button
+            v-hasPerm="['module_generator:tenant:query']"
+            icon="refresh"
+            @click="handleResetQuery"
+          >
+            重置
+          </el-button>
+          <!-- 展开/收起 -->
+          <template v-if="isExpandable">
+            <el-link class="ml-3" type="primary" underline="never" @click="isExpand = !isExpand">
+              {{ isExpand ? "收起" : "展开" }}
+              <el-icon>
+                <template v-if="isExpand">
+                  <ArrowUp />
+                </template>
+                <template v-else>
+                  <ArrowDown />
+                </template>
+              </el-icon>
+            </el-link>
+          </template>
+        </el-form-item>
+      </el-form>
+    </div>
+    
+    <!-- 内容区域 -->
+    <el-card class="data-table">
+      <template #header>
+        <div class="card-header">
+          <span>
+            租户列表
+            <el-tooltip content="租户列表">
+              <QuestionFilled class="w-4 h-4 mx-1" />
+            </el-tooltip>
+          </span>
+        </div>
+      </template>
+
+      <!-- 功能区域 -->
+      <div class="data-table__toolbar">
+        <div class="data-table__toolbar--left">
+          <el-row :gutter="10">
+            <el-col :span="1.5">
+              <el-button v-hasPerm="['module_generator:tenant:create']" type="success" icon="plus" @click="handleOpenDialog('create')">新增</el-button>
+            </el-col>
+            <el-col :span="1.5">
+              <el-button v-hasPerm="['module_generator:tenant:delete']" type="danger" icon="delete" :disabled="selectIds.length === 0" @click="handleDelete(selectIds)">批量删除</el-button>
+            </el-col>
+            <el-col :span="1.5">
+              <el-dropdown v-hasPerm="['module_generator:tenant:batch']" trigger="click">
+                <el-button type="default" :disabled="selectIds.length === 0" icon="ArrowDown">更多</el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item icon="Check" @click="handleMoreClick(true)">批量启用</el-dropdown-item>
+                    <el-dropdown-item icon="CircleClose" @click="handleMoreClick(false)">批量停用</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="data-table__toolbar--right">
+          <el-row :gutter="10">
+            <el-col :span="1.5">
+              <el-tooltip content="导入">
+                <el-button v-hasPerm="['module_generator:tenant:import']" type="success" icon="upload" circle @click="handleOpenImportDialog" />
+              </el-tooltip>
+            </el-col>
+            <el-col :span="1.5">
+              <el-tooltip content="导出">
+                <el-button v-hasPerm="['module_generator:tenant:export']" type="warning" icon="download" circle @click="handleOpenExportsModal" />
+              </el-tooltip>
+            </el-col>
+            <el-col :span="1.5">
+              <el-tooltip content="搜索显示/隐藏">
+                <el-button v-hasPerm="['*:*:*']" type="info" icon="search" circle @click="visible = !visible" />
+              </el-tooltip>
+            </el-col>
+            <el-col :span="1.5">
+              <el-tooltip content="刷新">
+                <el-button v-hasPerm="['module_generator:tenant:refresh']" type="primary" icon="refresh" circle @click="handleRefresh" />
+              </el-tooltip>
+            </el-col>
+            <el-col :span="1.5">
+              <el-popover placement="bottom" trigger="click">
+                <template #reference>
+                  <el-button type="danger" icon="operation" circle></el-button>
+                </template>
+                <el-scrollbar max-height="350px">
+                  <template v-for="column in tableColumns" :key="column.prop">
+                    <el-checkbox v-if="column.prop" v-model="column.show" :label="column.label" />
                   </template>
-                  <template v-else>
-                    <ArrowDown />
-                  </template>
-                </el-icon>
-              </el-link>
-            </template>
+                </el-scrollbar>
+              </el-popover>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+
+      <!-- 表格区域：系统配置列表 -->
+      <el-table ref="tableRef" v-loading="loading" :data="pageTableData" highlight-current-row class="data-table__content" :height="450" border stripe @selection-change="handleSelectionChange">
+        <template #empty>
+          <el-empty :image-size="80" description="暂无数据" />
+        </template>
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'selection')?.show" type="selection" min-width="55" align="center"/>
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'index')?.show" fixed label="序号" min-width="60">
+          <template #default="scope">
+            {{ (queryFormData.page_no - 1) * queryFormData.page_size + scope.$index + 1 }}
+          </template>
+        </el-table-column>
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'name')?.show" label="名称" prop="name" min-width="140" />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'status')?.show" label="状态" prop="status" min-width="120">
+          <template #default="scope">
+            <el-tag :type="scope.row.status ? 'success' : 'info'">
+              {{ scope.row.status ? '启用' : '停用' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'description')?.show" label="描述" prop="description" min-width="140" />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'created_at')?.show" label="创建时间" prop="created_at" min-width="180" />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'updated_at')?.show" label="更新时间" prop="updated_at" min-width="180" />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'creator')?.show" label="创建人" prop="creator" min-width="120">
+          <template #default="scope">
+            <el-tag>{{ scope.row.creator?.name }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="tableColumns.find(col => col.prop === 'operation')?.show" fixed="right" label="操作" align="center" min-width="180">
+          <template #default="scope">
+            <el-button v-hasPerm="['module_generator:tenant:detail']" type="info" size="small" link icon="document" @click="handleOpenDialog('detail', scope.row.id)">详情</el-button>
+            <el-button v-hasPerm="['module_generator:tenant:update']" type="primary" size="small" link icon="edit" @click="handleOpenDialog('update', scope.row.id)">编辑</el-button>
+            <el-button v-hasPerm="['module_generator:tenant:delete']" type="danger" size="small" link icon="delete" @click="handleDelete([scope.row.id])">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页区域 -->
+      <template #footer>
+        <pagination v-model:total="total" v-model:page="queryFormData.page_no" v-model:limit="queryFormData.page_size" @pagination="loadingData" />
+      </template>
+    </el-card>
+
+    <!-- 弹窗区域 -->
+    <el-dialog v-model="dialogVisible.visible" :title="dialogVisible.title" @close="handleCloseDialog">
+      <!-- 详情 -->
+      <template v-if="dialogVisible.type === 'detail'">
+        <el-descriptions :column="4" border>
+          <el-descriptions-item label="名称" :span="2">
+            {{ detailFormData.name }}
+          </el-descriptions-item>
+          <el-descriptions-item label="状态" :span="2">
+            <el-tag :type="detailFormData.status ? 'success' : 'danger'">
+              {{ detailFormData.status ? '启用' : '停用' }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="描述" :span="2">
+            {{ detailFormData.description }}
+          </el-descriptions-item>
+          <!-- <el-descriptions-item label="创建人" :span="2">
+            {{ detailFormData.creator?.name }}
+          </el-descriptions-item> -->
+          <el-descriptions-item label="创建时间" :span="2">
+            {{ detailFormData.created_at }}
+          </el-descriptions-item>
+          <el-descriptions-item label="更新时间" :span="2">
+            {{ detailFormData.updated_at }}
+          </el-descriptions-item>
+        </el-descriptions>
+      </template>
+      <!-- 新增、编辑表单 -->
+      <template v-else>
+        <el-form ref="dataFormRef" :model="formData" :rules="rules" label-suffix=":" label-width="auto" label-position="right">
+          <el-form-item label="名称" prop="name">
+            <el-input v-model="formData.name" placeholder="请输入名称" :maxlength="50" />
+          </el-form-item>
+          <el-form-item label="状态" prop="status">
+            <el-radio-group v-model="formData.status">
+              <el-radio :value="true">启用</el-radio>
+              <el-radio :value="false">停用</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="描述" prop="description">
+            <el-input v-model="formData.description" :rows="4" :maxlength="100" show-word-limit type="textarea" placeholder="请输入描述" />
           </el-form-item>
         </el-form>
-      </div>
-      
-      <!-- 内容区域 -->
-      <el-card class="data-table">
-        <template #header>
-          <div class="card-header">
-            <span>
-              演示示例列表
-              <el-tooltip content="演示示例列表">
-                <QuestionFilled class="w-4 h-4 mx-1" />
-              </el-tooltip>
-            </span>
-          </div>
-        </template>
+      </template>
 
-        <!-- 功能区域 -->
-        <div class="data-table__toolbar">
-          <div class="data-table__toolbar--left">
-            <el-row :gutter="10">
-              <el-col :span="1.5">
-                <el-button v-hasPerm="['module_generator:tenant:create']" type="success" icon="plus" @click="handleOpenDialog('create')">新增</el-button>
-              </el-col>
-              <el-col :span="1.5">
-                <el-button v-hasPerm="['module_generator:tenant:delete']" type="danger" icon="delete" :disabled="selectIds.length === 0" @click="handleDelete(selectIds)">批量删除</el-button>
-              </el-col>
-              <el-col :span="1.5">
-                <el-dropdown v-hasPerm="['module_generator:tenant:batch']" trigger="click">
-                  <el-button type="default" :disabled="selectIds.length === 0" icon="ArrowDown">更多</el-button>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item icon="Check" @click="handleMoreClick(true)">批量启用</el-dropdown-item>
-                      <el-dropdown-item icon="CircleClose" @click="handleMoreClick(false)">批量停用</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="data-table__toolbar--right">
-            <el-row :gutter="10">
-              <el-col :span="1.5">
-                <el-tooltip content="导入">
-                  <el-button v-hasPerm="['module_generator:tenant:import']" type="success" icon="upload" circle @click="handleOpenImportDialog" />
-                </el-tooltip>
-              </el-col>
-              <el-col :span="1.5">
-                <el-tooltip content="导出">
-                  <el-button v-hasPerm="['module_generator:tenant:export']" type="warning" icon="download" circle @click="handleOpenExportsModal" />
-                </el-tooltip>
-              </el-col>
-              <el-col :span="1.5">
-                <el-tooltip content="搜索显示/隐藏">
-                  <el-button v-hasPerm="['*:*:*']" type="info" icon="search" circle @click="visible = !visible" />
-                </el-tooltip>
-              </el-col>
-              <el-col :span="1.5">
-                <el-tooltip content="刷新">
-                  <el-button v-hasPerm="['module_generator:tenant:refresh']" type="primary" icon="refresh" circle @click="handleRefresh" />
-                </el-tooltip>
-              </el-col>
-              <el-col :span="1.5">
-                <el-popover placement="bottom" trigger="click">
-                  <template #reference>
-                    <el-button type="danger" icon="operation" circle></el-button>
-                  </template>
-                  <el-scrollbar max-height="350px">
-                    <template v-for="column in tableColumns" :key="column.prop">
-                      <el-checkbox v-if="column.prop" v-model="column.show" :label="column.label" />
-                    </template>
-                  </el-scrollbar>
-                </el-popover>
-              </el-col>
-            </el-row>
-          </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <!-- 详情弹窗不需要确定按钮的提交逻辑 -->
+          <el-button @click="handleCloseDialog">取消</el-button>
+          <el-button v-if="dialogVisible.type !== 'detail'" v-hasPerm="['module_generator:tenant:submit']" type="primary" @click="handleSubmit">确定</el-button>
+          <el-button v-else v-hasPerm="['smodule_generator:tenant:detail']" type="primary" @click="handleCloseDialog">确定</el-button>
         </div>
+      </template>
+    </el-dialog>
 
-        <!-- 表格区域：系统配置列表 -->
-        <el-table ref="tableRef" v-loading="loading" :data="pageTableData" highlight-current-row class="data-table__content" height="450" border stripe @selection-change="handleSelectionChange">
-          <template #empty>
-            <el-empty :image-size="80" description="暂无数据" />
-          </template>
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'selection')?.show" type="selection" min-width="55" align="center"/>
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'index')?.show" fixed label="序号" min-width="60">
-            <template #default="scope">
-              {{ (queryFormData.page_no - 1) * queryFormData.page_size + scope.$index + 1 }}
-            </template>
-          </el-table-column>
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'name')?.show" label="名称" prop="name" min-width="140" />
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'status')?.show" label="状态" prop="status" min-width="120">
-            <template #default="scope">
-              <el-tag :type="scope.row.status ? 'success' : 'info'">
-                {{ scope.row.status ? '启用' : '停用' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'description')?.show" label="描述" prop="description" min-width="140" />
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'created_at')?.show" label="创建时间" prop="created_at" min-width="180" />
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'updated_at')?.show" label="更新时间" prop="updated_at" min-width="180" />
-          <el-table-column v-if="tableColumns.find((col) => col.prop === 'creator')?.show" label="创建人" prop="creator" min-width="120">
-            <template #default="scope">
-              <el-tag>{{ scope.row.creator?.name }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column v-if="tableColumns.find(col => col.prop === 'operation')?.show" fixed="right" label="操作" align="center" min-width="180">
-            <template #default="scope">
-              <el-button v-hasPerm="['module_generator:tenant:detail']" type="info" size="small" link icon="document" @click="handleOpenDialog('detail', scope.row.id)">详情</el-button>
-              <el-button v-hasPerm="['module_generator:tenant:update']" type="primary" size="small" link icon="edit" @click="handleOpenDialog('update', scope.row.id)">编辑</el-button>
-              <el-button v-hasPerm="['module_generator:tenant:delete']" type="danger" size="small" link icon="delete" @click="handleDelete([scope.row.id])">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+    <!-- 导入弹窗 -->
+    <ImportModal 
+      v-model="importDialogVisible" 
+      :content-config="curdContentConfig"
+      @upload="handleUpload" 
+    />
 
-        <!-- 分页区域 -->
-        <template #footer>
-          <pagination v-model:total="total" v-model:page="queryFormData.page_no" v-model:limit="queryFormData.page_size" @pagination="loadingData" />
-        </template>
-      </el-card>
-
-      <!-- 弹窗区域 -->
-      <el-dialog v-model="dialogVisible.visible" :title="dialogVisible.title" @close="handleCloseDialog">
-        <!-- 详情 -->
-        <template v-if="dialogVisible.type === 'detail'">
-          <el-descriptions :column="4" border>
-            <el-descriptions-item label="名称" :span="2">
-              {{ detailFormData.name }}
-            </el-descriptions-item>
-            <el-descriptions-item label="状态" :span="2">
-              <el-tag :type="detailFormData.status ? 'success' : 'danger'">
-                {{ detailFormData.status ? '启用' : '停用' }}
-              </el-tag>
-            </el-descriptions-item>
-            <el-descriptions-item label="描述" :span="2">
-              {{ detailFormData.description }}
-            </el-descriptions-item>
-            <!-- <el-descriptions-item label="创建人" :span="2">
-              {{ detailFormData.creator?.name }}
-            </el-descriptions-item> -->
-            <el-descriptions-item label="创建时间" :span="2">
-              {{ detailFormData.created_at }}
-            </el-descriptions-item>
-            <el-descriptions-item label="更新时间" :span="2">
-              {{ detailFormData.updated_at }}
-            </el-descriptions-item>
-          </el-descriptions>
-        </template>
-        <!-- 新增、编辑表单 -->
-        <template v-else>
-          <el-form ref="dataFormRef" :model="formData" :rules="rules" label-suffix=":" label-width="auto" label-position="right">
-            <el-form-item label="名称" prop="name">
-              <el-input v-model="formData.name" placeholder="请输入名称" :maxlength="50" />
-            </el-form-item>
-            <el-form-item label="状态" prop="status">
-              <el-radio-group v-model="formData.status">
-                <el-radio :value="true">启用</el-radio>
-                <el-radio :value="false">停用</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="描述" prop="description">
-              <el-input v-model="formData.description" :rows="4" :maxlength="100" show-word-limit type="textarea" placeholder="请输入描述" />
-            </el-form-item>
-          </el-form>
-        </template>
-
-        <template #footer>
-          <div class="dialog-footer">
-            <!-- 详情弹窗不需要确定按钮的提交逻辑 -->
-            <el-button @click="handleCloseDialog">取消</el-button>
-            <el-button v-if="dialogVisible.type !== 'detail'" v-hasPerm="['module_generator:tenant:submit']" type="primary" @click="handleSubmit">确定</el-button>
-            <el-button v-else v-hasPerm="['smodule_generator:tenant:detail']" type="primary" @click="handleCloseDialog">确定</el-button>
-          </div>
-        </template>
-      </el-dialog>
-
-      <!-- 导入弹窗 -->
-      <ImportModal 
-        v-model="importDialogVisible" 
-        :content-config="curdContentConfig"
-        @upload="handleUpload" 
-      />
-
-      <!-- 导出弹窗 -->
-      <ExportModal 
-        v-model="exportsDialogVisible"
-        :content-config="curdContentConfig"
-        :query-params="queryFormData"
-        :page-data="pageTableData"
-        :selection-data="selectionRows"
-      />
-    </div>
+    <!-- 导出弹窗 -->
+    <ExportModal 
+      v-model="exportsDialogVisible"
+      :content-config="curdContentConfig"
+      :query-params="queryFormData"
+      :page-data="pageTableData"
+      :selection-data="selectionRows"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -485,7 +485,7 @@ async function handleOpenDialog(type: 'create' | 'update' | 'detail', id?: numbe
       Object.assign(formData, response.data.data);
     }
   } else {
-    dialogVisible.title = "新增示例";
+    dialogVisible.title = "新增租户";
     formData.id = undefined;
   }
   dialogVisible.visible = true;

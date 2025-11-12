@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import Optional, List
-from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator
 
 from app.core.validator import DateTimeStr, mobile_validator
 from app.core.base_schema import BaseSchema, CommonSchema
@@ -59,24 +59,6 @@ class UserRegisterSchema(BaseModel):
             raise ValueError("账号需字母开头，3-32位，仅含字母/数字/_ . -")
         return v
 
-    @model_validator(mode='before')
-    @classmethod
-    def _normalize(cls, values):
-        if isinstance(values, dict):
-            for k in ["name", "username", "password", "description"]:
-                if k in values and isinstance(values[k], str):
-                    values[k] = values[k].strip() or values[k]
-            # role_ids 去重并转为 int
-            if "role_ids" in values and values["role_ids"] is not None:
-                try:
-                    values["role_ids"] = list[int]({int(x) for x in values["role_ids"]})
-                except Exception:
-                    pass
-            # mobile 空串转 None
-            if "mobile" in values and isinstance(values["mobile"], str) and values["mobile"].strip() == "":
-                values["mobile"] = None
-        return values
-
 
 class UserForgetPasswordSchema(BaseModel):
     """忘记密码"""
@@ -115,35 +97,6 @@ class UserCreateSchema(CurrentUserUpdateSchema):
     dept_id: Optional[int] = Field(default=None, description='部门ID')
     role_ids: Optional[List[int]] = Field(default=[], description='角色ID')
     position_ids: Optional[List[int]] = Field(default=[], description='岗位ID')
-
-    @model_validator(mode='before')
-    @classmethod
-    def _normalize(cls, values):
-        if isinstance(values, dict):
-            # 字符串去空格和空串转 None
-            for k in ["username", "password", "description", "name"]:
-                if k in values and isinstance(values[k], str):
-                    values[k] = values[k].strip() or None if values[k].strip() == "" else values[k].strip()
-            # bool 兼容
-            for k in ["status", "is_superuser"]:
-                if k in values:
-                    v = values[k]
-                    if isinstance(v, str):
-                        values[k] = v.strip().lower() in {"true", "1", "yes", "y"}
-            # 列表转 int 去重
-            for k in ["role_ids", "position_ids"]:
-                if k in values and values[k] is not None:
-                    try:
-                        values[k] = list({int(x) for x in values[k]})
-                    except Exception:
-                        pass
-        return values
-
-    @model_validator(mode='after')
-    def _validate_after(self):
-        if self.status is False and (not self.description or not str(self.description).strip()):
-            raise ValueError("禁用状态下必须填写备注描述")
-        return self
 
 
 class UserUpdateSchema(UserCreateSchema):

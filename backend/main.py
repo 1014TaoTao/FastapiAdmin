@@ -9,6 +9,12 @@ from alembic.config import Config
 
 from app.common.enums import EnvironmentEnum
 from app.config.setting import settings
+from app.core.logger import setup_logging
+from app.utils.common_util import worship
+
+
+# 全局标志，用于跟踪日志是否已初始化
+LOGGING_INITIALIZED = False
 
 
 shell_app = typer.Typer()
@@ -17,6 +23,7 @@ shell_app = typer.Typer()
 alembic_cfg = Config("alembic.ini")
 
 def create_app() -> FastAPI:
+    global LOGGING_INITIALIZED
     from app.plugin.init_app import (
         register_middlewares,
         register_exceptions,
@@ -25,6 +32,10 @@ def create_app() -> FastAPI:
         reset_api_docs,
         lifespan
     )
+    # 初始化日志系统（确保每个工作进程都会初始化日志，但避免重复初始化）
+    if not LOGGING_INITIALIZED:
+        setup_logging()
+        LOGGING_INITIALIZED = True
     # 创建FastAPI应用
     app = FastAPI(**settings.FASTAPI_CONFIG, lifespan=lifespan)
 
@@ -46,11 +57,12 @@ def run(env: EnvironmentEnum = typer.Option(EnvironmentEnum.DEV, "--env", help="
     typer.echo("项目启动中..")
     # 设置环境变量
     os.environ["ENVIRONMENT"] = env.value
+    # 初始化日志系统（确保uvicorn主进程的日志也被正确配置）
+    setup_logging()
+    worship()
+    
     # 启动uvicorn服务
-    uvicorn.run(
-        app='main:create_app',
-        **settings.UVICORN_CONFIG
-    )
+    uvicorn.run(app=f'main:create_app', **settings.UVICORN_CONFIG)
 
 @shell_app.command()
 def revision(env: EnvironmentEnum = typer.Option(EnvironmentEnum.DEV, "--env", help="运行环境 (dev, prod)")) -> None:

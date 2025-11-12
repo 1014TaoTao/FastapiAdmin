@@ -90,7 +90,7 @@
       </div>
 
       <!-- 表格区域 -->
-      <el-table ref="dataTableRef" v-loading="loading" row-key="id" :data="pageTableData" :tree-props="{children: 'children',hasChildren: 'hasChildren'}" class="data-table__content" height="540" border stripe @selection-change="handleSelectionChange" @row-click="handleRowClick">
+      <el-table ref="dataTableRef" v-loading="loading" row-key="id" :data="pageTableData" :tree-props="{children: 'children',hasChildren: 'hasChildren'}" class="data-table__content" :height="540" border stripe @selection-change="handleSelectionChange" @row-click="handleRowClick">
         <template #empty>
           <el-empty :image-size="80" description="暂无数据" />
         </template>

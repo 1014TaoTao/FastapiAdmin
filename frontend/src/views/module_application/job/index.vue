@@ -145,7 +145,7 @@
         :data="pageTableData"
         class="data-table__content"
         highlight-current-row
-        height="450"
+        :height="450"
         border
         stripe
         @selection-change="handleSelectionChange"
