@@ -1,5 +1,5 @@
 {
-  "name": "FastapiAdmin",
+  "name": "fastapi-admin",
   "description": "Vue3 + Vite + TypeScript + Element-Plus 的后台管理模板",
   "version": "2.0.0",
   "private": true,
@@ -9,9 +9,6 @@
     "dev": "vite",
     "prod": "vite --mode prod",
     "build": "vite build",
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs",
     "build:pro": "pnpm vite build --mode pro",
     "build:gitee": "pnpm vite build --mode gitee",
     "build:dev": "pnpm vite build --mode dev",
