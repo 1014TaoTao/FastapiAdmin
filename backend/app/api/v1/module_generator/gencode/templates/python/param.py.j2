@@ -15,13 +15,11 @@ class {{ class_name }}QueryParam:
         {{ column.column_name }}: Optional[{{ column.python_type }}] = Query(None, description="{{ column.column_comment }}"),
         {% endif %}
         {% endfor %}
-
         {% for column in columns %}
-        {% if column.column_name == 'EQ' %}
+        {% if column.query_type == 'EQ' %}
         {{ column.column_name }}: Optional[{{ column.python_type }}] = Query(None, description="{{ column.column_comment }}"),
         {% endif %}
         {% endfor %}
-
         creator: Optional[int] = Query(None, description="创建人"),
         start_time: Optional[DateTimeStr] = Query(None, description="开始时间", example="2025-01-01 00:00:00"),
         end_time: Optional[DateTimeStr] = Query(None, description="结束时间", example="2025-12-31 23:59:59"),

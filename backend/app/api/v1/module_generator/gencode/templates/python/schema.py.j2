@@ -13,7 +13,6 @@ class {{ class_name }}CreateSchema(BaseModel):
     """
     {{ function_name }}新增模型
     """
-
     {% for column in columns %}
     {% if column.column_name not in ['id', 'creator_id', 'created_at', 'updated_at'] %}
     {{ column.column_name }}: Optional[{{ column.python_type }}] = Field(default=None, description='{{ column.column_comment }}')

@@ -136,15 +136,14 @@ cd backend
 pip3 install -r requirements.txt
 
 # 启动后端服务
-python3 main.py run
+python main.py run
 # 或指定环境
-python3 main.py run --env=dev
+python main.py run --env=dev
 
-# 数据库迁移（首次运行）
 # 生成迁移文件
-python3 main.py revision "初始化迁移" --env=dev
+python main.py revision --env=dev
 # 应用迁移
-python3 main.py upgrade --env=dev
+python main.py upgrade --env=dev
 ```
 
 ### 前端启动

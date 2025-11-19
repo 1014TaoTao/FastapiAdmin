@@ -2,7 +2,7 @@
 
 from starlette.responses import HTMLResponse
 from typing import Any, AsyncGenerator
-from fastapi import FastAPI, Request, Response
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.concurrency import asynccontextmanager
 from fastapi.openapi.docs import (
@@ -11,15 +11,15 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html
 )
 from fastapi_limiter import FastAPILimiter
+from fastapi_limiter.depends import RateLimiter
 from math import ceil
 
 from app.config.setting import settings
 from app.core.ap_scheduler import SchedulerUtil
 from app.core.logger import log
-from app.utils.common_util import import_module, import_modules_async
-from app.utils.console import run as console_run
-from app.core.exceptions import CustomException, handle_exception
 from app.core.discover import router
+from app.core.exceptions import CustomException, handle_exception
+from app.utils.common_util import import_module, import_modules_async
 from app.scripts.initialize import InitializeData
 
 from app.api.v1.module_system.params.service import ParamsService
@@ -30,46 +30,64 @@ from app.api.v1.module_system.dict.service import DictDataService
 async def lifespan(app: FastAPI) -> AsyncGenerator[Any, Any]:
     """
     自定义 FastAPI 应用生命周期。
-
+    
     参数:
     - app (FastAPI): FastAPI 应用实例。
-
+    
     返回:
     - AsyncGenerator[Any, Any]: 生命周期上下文生成器。
     """
-    await InitializeData().init_db()
-    log.info(f"✅️ 初始化 {settings.DATABASE_TYPE} 数据库初始化完成...")
-    await import_modules_async(modules=settings.EVENT_LIST, desc="全局事件", app=app, status=True)
-    log.info("✅️ 初始化全局事件完成...")
-    await ParamsService().init_config_service(redis=app.state.redis)
-    log.info("✅️ 初始化Redis系统配置完成...")
-    await DictDataService().init_dict_service(redis=app.state.redis)
-    log.info('✅️ 初始化Redis数据字典完成...')
-    await SchedulerUtil.init_system_scheduler()
-    log.info('✅️ 初始化定时任务完成...')
+    try:
+        await InitializeData().init_db()
+        log.info(f"✅ 数据库初始化完成 ({settings.DATABASE_TYPE})")
+        await import_modules_async(modules=settings.EVENT_LIST, desc="全局事件", app=app, status=True)
+        log.info("✅ 全局事件模块加载完成")
+        await ParamsService().init_config_service(redis=app.state.redis)
+        log.info("✅ Redis系统配置初始化完成")
+        await DictDataService().init_dict_service(redis=app.state.redis)
+        log.info("✅ Redis数据字典初始化完成")
+        await SchedulerUtil.init_system_scheduler()
+        scheduler_jobs_count = len(SchedulerUtil.get_all_jobs())
+        scheduler_status = SchedulerUtil.get_job_status()
+        log.info(f"✅ 定时任务调度器初始化完成 ({scheduler_jobs_count} 个任务)")
 
-    # 初始化 limiter
-    await FastAPILimiter.init(
-        redis=app.state.redis,
-        prefix=settings.REQUEST_LIMITER_REDIS_PREFIX,
-        http_callback=http_limit_callback,
-    )
-    
-    console_run(
-        host=settings.SERVER_HOST,
-        port=settings.SERVER_PORT,
-        reload=settings.RELOAD,
-        workers=settings.WORKERS,
-        redis_ready=True,
-        scheduler_jobs=len(SchedulerUtil.get_all_jobs()),
-        scheduler_status=SchedulerUtil.get_job_status(),
-    )
+        # 6. 初始化请求限制器
+        await FastAPILimiter.init(
+            redis=app.state.redis,
+            prefix=settings.REQUEST_LIMITER_REDIS_PREFIX,
+            http_callback=http_limit_callback,
+        )
+        log.info("✅ 请求限制器初始化完成")
+        
+        # 导入并显示最终的启动信息面板
+        from app.utils.console import run as console_run
+        console_run(
+            host=settings.SERVER_HOST,
+            port=settings.SERVER_PORT,
+            reload=settings.RELOAD,
+            redis_ready=True,
+            scheduler_jobs=scheduler_jobs_count,
+            scheduler_status=scheduler_status,
+            show_banner=True
+        )
+        
+    except Exception as e:
+        log.error(f"❌ 应用初始化失败: {str(e)}")
+        raise
 
     yield
+    
+    try:
+        await import_modules_async(modules=settings.EVENT_LIST, desc="全局事件", app=app, status=False)
+        log.info("✅ 全局事件模块卸载完成")
+        await SchedulerUtil.close_system_scheduler()
+        log.info("✅ 定时任务调度器已关闭")
+        await FastAPILimiter.close()
+        log.info("✅ 请求限制器已关闭")
 
-    await import_modules_async(modules=settings.EVENT_LIST, desc="全局事件", app=app, status=False)
-    await SchedulerUtil.close_system_scheduler()
-    log.info(f'⚠️  {settings.TITLE} 服务关闭...')
+    except Exception as e:
+        log.error(f"❌ 应用关闭过程中发生错误: {str(e)}")
+        
 
 def register_middlewares(app: FastAPI) -> None:
     """
@@ -109,7 +127,7 @@ def register_routers(app: FastAPI) -> None:
     返回:
     - None
     """
-    app.include_router(router=router)
+    app.include_router(router=router, dependencies=[Depends(RateLimiter(times=2, seconds=5))])
 
 def register_files(app: FastAPI) -> None:
     """
@@ -173,7 +191,7 @@ async def http_limit_callback(request: Request, response: Response, expire: int)
     """
     expires = ceil(expire / 30)
     raise CustomException(
-        code=429,
+        status_code=429,
         msg='请求过于频繁，请稍后重试',
         data={'Retry-After': str(expires)},
     )

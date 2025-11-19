@@ -94,7 +94,7 @@ module_*/
 
 ```bash
 # 生成迁移文件（仅首次或模型变更时）
-python main.py revision "数据迁移" --env=dev(不加默认为dev)
+python main.py revision  --env=dev(不加默认为dev)
 
 # 应用数据库迁移
 python main.py upgrade --env=dev(不加默认为dev)

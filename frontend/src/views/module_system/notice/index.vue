@@ -349,7 +349,7 @@
     >
       <!-- 详情 -->
       <template v-if="dialogVisible.type === 'detail'">
-        <el-descriptions :column="4" border>
+        <el-descriptions :column="4" border label-width="120px">
           <el-descriptions-item label="标题" :span="2">
             {{ detailFormData.notice_title }}
           </el-descriptions-item>
@@ -368,11 +368,11 @@
               {{ detailFormData.status ? "启用" : "停用" }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="内容" :span="2">
-            {{ detailFormData.notice_content }}
-          </el-descriptions-item>
           <el-descriptions-item label="描述" :span="2">
             {{ detailFormData.description }}
+          </el-descriptions-item>
+          <el-descriptions-item label="内容" :span="4">
+            <WangEditor v-model="detailFormData.notice_content" :readonly="true" />
           </el-descriptions-item>
           <el-descriptions-item label="创建人" :span="2">
             {{ detailFormData.creator?.name }}

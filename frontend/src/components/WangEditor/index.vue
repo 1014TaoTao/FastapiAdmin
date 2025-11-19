@@ -1,30 +1,18 @@
-<!--
- * 基于 wangEditor-next 的富文本编辑器组件二次封装
- * 版权所有 © 2021-present 有来开源组织
- *
- * 开源协议：https://opensource.org/licenses/MIT
- * 项目地址：https://gitee.com/youlaiorg/vue3-element-admin
- *
- * 在使用时，请保留此注释，感谢您对开源的支持！
- *
- * 修改：此版本返回纯文本格式，使用 editor.getText() 获取内容
--->
-
 <template>
   <div style="z-index: 999; border: 1px solid var(--el-border-color)">
     <!-- 工具栏 -->
     <Toolbar
       :editor="editorRef"
-      mode="simple"
+      mode="mode"
       :default-config="toolbarConfig"
       style="border-bottom: 1px solid var(--el-border-color)"
     />
     <!-- 编辑器 -->
     <Editor
       v-model="modelValue"
-      :style="{ height: height, overflowY: 'hidden' }"
+      :style="{ minHeight: height, overflowY: 'hidden' }"
       :default-config="editorConfig"
-      mode="simple"
+      mode="mode"
       @on-created="handleCreated"
       @on-change="handleChange"
     />
@@ -39,7 +27,7 @@ import { IToolbarConfig, IEditorConfig } from "@wangeditor-next/editor";
 // 上传图片回调函数类型
 type InsertFnType = (_url: string, _alt: string, _href: string) => void;
 
-// 模拟文件上传API，根据实际项目结构调整
+// 模拟文件上传API，根据实际项目进行调整
 interface UploadResult {
   url: string;
   name: string;
@@ -56,10 +44,22 @@ const FileAPI = {
   },
 };
 
-defineProps({
+const props = defineProps({
   height: {
     type: String,
-    default: "300px",
+    default: "200px",
+  },
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
+  autoFocus: {
+    type: Boolean,
+    default: true,
+  },
+  scroll: {
+    type: Boolean,
+    default: true,
   },
 });
 // 双向绑定
@@ -74,9 +74,12 @@ const editorRef = shallowRef();
 // 工具栏配置
 const toolbarConfig = ref<Partial<IToolbarConfig>>({});
 
-// 编辑器配置
+// 编辑器配置 - 根据 props 动态生成配置
 const editorConfig = ref<Partial<IEditorConfig>>({
   placeholder: "请输入内容...",
+  readOnly: props.readonly,
+  autoFocus: props.autoFocus,
+  scroll: props.scroll,
   MENU_CONF: {
     uploadImage: {
       customUpload(file: File, insertFn: InsertFnType) {

@@ -4,10 +4,8 @@
 {% set b_true = 1 if db_type == 'mysql' else true %}
 {% set b_false = 0 if db_type == 'mysql' else false %}
 {% set order_col = '`order`' if db_type == 'mysql' else '"order"' %}
-
 {# 公共字段列表（按实际库字段） #}
 {# name, type, order, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_at, updated_at #}
-
 {% if db_type == 'mysql' %}
 -- 父菜单（类型=2：菜单）
 INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_at, updated_at)

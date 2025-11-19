@@ -856,7 +856,8 @@ defineOptions({
 
 import "codemirror/mode/javascript/javascript.js";
 import "codemirror/mode/sql/sql.js";
-import { ref, reactive, computed, onActivated, onMounted } from "vue";
+import "codemirror/theme/dracula.css"
+import { ref, reactive, computed, onActivated, onMounted, watch } from "vue";
 import { useClipboard } from "@vueuse/core";
 import { useRoute } from "vue-router";
 import Codemirror from "codemirror-editor-vue3";
@@ -883,6 +884,8 @@ import MenuAPI, { MenuTable } from "@/api/module_system/menu";
 import DictAPI, { DictTable } from "@/api/module_system/dict";
 import { formatTree } from "@/utils/common";
 import { MenuTypeEnum } from "@/enums";
+import { useSettingsStore } from "@/store";
+import { ThemeMode } from "@/enums/settings/theme.enum";
 
 // 表格列配置接口
 interface TableColumn {
@@ -995,6 +998,27 @@ const tableColumns = ref<TableColumn[]>([
   { prop: "operation", label: "操作", show: true },
 ]);
 
+
+const settingsStore = useSettingsStore();
+
+// 主题计算属性
+const codeTheme = computed(() =>
+  settingsStore.theme === ThemeMode.DARK ? "dracula" : "default"
+);
+
+// 监听主题变化并更新CodeMirror实例
+watch(codeTheme, (newTheme) => {
+  // 更新SQL编辑器主题
+  if (sqlRef.value && sqlRef.value.cminstance) {
+    sqlRef.value.cminstance.setOption("theme", newTheme);
+  }
+  
+  // 更新代码预览编辑器主题
+  if (cmRef.value && cmRef.value.cminstance) {
+    cmRef.value.cminstance.setOption("theme", newTheme);
+  }
+});
+
 // CodeMirror配置
 const cmOptions: EditorConfiguration = {
   mode: "text/javascript",
@@ -1002,7 +1026,10 @@ const cmOptions: EditorConfiguration = {
   smartIndent: true,
   indentUnit: 2,
   tabSize: 2,
-  readOnly: true,
+  readOnly: false,
+  theme: codeTheme.value,
+  lineWrapping: true,
+  autofocus: false,
 };
 
 const sqlOptions: EditorConfiguration = {
@@ -1012,8 +1039,9 @@ const sqlOptions: EditorConfiguration = {
   indentUnit: 2,
   tabSize: 2,
   readOnly: false,
-  theme: "default",
+  theme: codeTheme.value,
   lineWrapping: true,
+  autofocus: false,
 };
 
 // 工具函数

@@ -4,34 +4,33 @@
     <div v-show="visible" class="search-container">
       <el-form ref="queryFormRef" :model="queryFormData" label-suffix=":" :inline="true" @submit.prevent="handleQuery">
         {% for column in columns %}
-          {% if column.is_query == "1" %}
-            {% set dict_type = column.dict_type %}
-            {% set column_comment = column.column_comment if column.column_comment else '' %}
-            {% set parentheseIndex = column_comment.find("（") %}
-            {% set comment = column_comment[:parentheseIndex] if parentheseIndex != -1 else column_comment %}
-
-            {% if column.html_type == "input" %}
-              <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
-                <el-input v-model="queryFormData.{{ column.python_field }}" placeholder="请输入{{ comment }}" clearable />
-              </el-form-item>
-            {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type != "" %}
-              <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
-                <el-select v-model="queryFormData.{{ column.python_field }}" placeholder="请选择{{ comment }}" style="width: 180px" clearable>
-                  <el-option v-for="dict in dictStore.getDictArray('{{ dict_type }}')" :key="dict.dict_value" :label="dict.dict_label" :value="dict.dict_value" />
-                </el-select>
-              </el-form-item>
-            {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type %}
-              <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
-                <el-select v-model="queryFormData.{{ column.python_field }}" placeholder="请选择{{ comment }}" clearable>
-                  <el-option label="请选择字典生成" value="" />
-                </el-select>
-              </el-form-item>
-            {% elif column.html_type == "datetime" and column.query_type != "BETWEEN" %}
-              <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
-                <el-date-picker v-model="queryFormData.{{ column.python_field }}" type="date" value-format="YYYY-MM-DD" clearable placeholder="请选择{{ comment }}" />
-              </el-form-item>
-            {% endif %}
-          {% endif %}
+        {% if column.is_query == 1 %}
+        {% set dict_type = column.dict_type %}
+        {% set column_comment = column.column_comment if column.column_comment else '' %}
+        {% set parentheseIndex = column_comment.find("（") %}
+        {% set comment = column_comment[:parentheseIndex] if parentheseIndex != -1 else column_comment %}
+        {% if column.html_type == "input" %}
+        <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
+          <el-input v-model="queryFormData.{{ column.python_field }}" placeholder="请输入{{ comment }}" clearable />
+        </el-form-item>
+        {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type != "" %}
+        <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
+          <el-select v-model="queryFormData.{{ column.python_field }}" placeholder="请选择{{ comment }}" style="width: 180px" clearable>
+            <el-option v-for="dict in dictStore.getDictArray('{{ dict_type }}')" :key="dict.dict_value" :label="dict.dict_label" :value="dict.dict_value" />
+          </el-select>
+        </el-form-item>
+        {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type %}
+        <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
+          <el-select v-model="queryFormData.{{ column.python_field }}" placeholder="请选择{{ comment }}" clearable>
+            <el-option label="请选择字典生成" value="" />
+          </el-select>
+        </el-form-item>
+        {% elif column.html_type == "datetime" and column.query_type != "BETWEEN" %}
+        <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
+          <el-date-picker v-model="queryFormData.{{ column.python_field }}" type="date" value-format="YYYY-MM-DD" clearable placeholder="请选择{{ comment }}" />
+        </el-form-item>
+        {% endif %}
+        {% endif %}
         {% endfor %}
         <!-- 可选：创建人选择与统一日期范围（展开后显示） -->
         <el-form-item v-if="isExpand" prop="creator" label="创建人">
@@ -156,23 +155,23 @@
           </template>
         </el-table-column>
         {% for column in columns %}
-          {% set python_field = column.python_field %}
-          {% set column_comment = column.column_comment if column.column_comment else '' %}
-          {% set parentheseIndex = column_comment.find("（") %}
-          {% set comment = column_comment[:parentheseIndex] if parentheseIndex != -1 else column_comment %}
-          {% if column.is_list == "1" %}
-            <el-table-column v-if="tableColumns.find((col) => col.prop === '{{ python_field }}')?.show" label="{{ comment }}" prop="{{ python_field }}" min-width="140">
-              {% if python_field == "status" %}
-                <template #default="scope">
-                  <el-tag :type="scope.row.status ? 'success' : 'info'">{{ '{{' }} scope.row.status ? '启用' : '停用' {{ '}}' }}</el-tag>
-                </template>
-              {% elif python_field == "creator" %}
-                <template #default="scope">
-                  <el-tag>{{ '{{' }} scope.row.creator?.name {{ '}}' }}</el-tag>
-                </template>
-              {% endif %}
-            </el-table-column>
-          {% endif %}
+        {% set python_field = column.python_field %}
+        {% set column_comment = column.column_comment if column.column_comment else '' %}
+        {% set parentheseIndex = column_comment.find("（") %}
+        {% set comment = column_comment[:parentheseIndex] if parentheseIndex != -1 else column_comment %}
+        {% if column.is_list == 1 %}
+        <el-table-column v-if="tableColumns.find((col) => col.prop === '{{ python_field }}')?.show" label="{{ comment }}" prop="{{ python_field }}" min-width="140">
+        {% if python_field == "status" %}
+          <template #default="scope">
+            <el-tag :type="scope.row.status ? 'success' : 'info'">{{ '{{' }} scope.row.status ? '启用' : '停用' {{ '}}' }}</el-tag>
+          </template>
+        {% elif python_field == "creator" %}
+          <template #default="scope">
+            <el-tag>{{ '{{' }} scope.row.creator?.name {{ '}}' }}</el-tag>
+          </template>
+        {% endif %}
+        </el-table-column>
+        {% endif %}
         {% endfor %}
         <el-table-column v-if="tableColumns.find(col => col.prop === 'operation')?.show" fixed="right" label="操作" align="center" min-width="180">
           <template #default="scope">
@@ -209,58 +208,57 @@
       <template v-else>
         <el-form ref="dataFormRef" :model="formData" :rules="rules" label-suffix=":" label-width="auto" label-position="right">
           {% for column in columns %}
-            {% if column.is_insert == "1" or column.is_edit == "1" %}
-              {% set dict_type = column.dict_type %}
-              {% set column_comment = column.column_comment if column.column_comment else '' %}
-              {% set parentheseIndex = column_comment.find("（") %}
-              {% set comment = column_comment[:parentheseIndex] if parentheseIndex != -1 else column_comment %}
-              {% set required = 'true' if column.is_nullable == '1' else 'false' %}
-
-              {% if column.python_field == "status" %}
-                <el-form-item label="状态" prop="status" :required="true">
-                  <el-radio-group v-model="formData.status">
-                    <el-radio :value="true">启用</el-radio>
-                    <el-radio :value="false">停用</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              {% elif column.html_type == "input" %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
-                  <el-input v-model="formData.{{ column.python_field }}" placeholder="请输入{{ comment }}" />
-                </el-form-item>
-              {% elif column.html_type == "textarea" %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
-                  <el-input v-model="formData.{{ column.python_field }}" type="textarea" placeholder="请输入{{ comment }}" rows="4" />
-                </el-form-item>
-              {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type != "" %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
-                  <el-select v-model="formData.{{ column.python_field }}" placeholder="请选择{{ comment }}">
-                    <el-option v-for="dict in dictStore.getDictArray('{{ dict_type }}')" :key="dict.dict_value" :label="dict.dict_label" :value="dict.dict_value" />
-                  </el-select>
-                </el-form-item>
-              {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
-                  <el-select v-model="formData.{{ column.python_field }}" placeholder="请选择{{ comment }}">
-                    <el-option label="请选择字典生成" value="" />
-                  </el-select>
-                </el-form-item>
-              {% elif column.html_type == "date" %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
-                  <el-date-picker v-model="formData.{{ column.python_field }}" type="date" value-format="YYYY-MM-DD" placeholder="请选择{{ comment }}" />
-                </el-form-item>
-              {% elif column.html_type == "datetime" %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
-                  <el-date-picker v-model="formData.{{ column.python_field }}" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择{{ comment }}" />
-                </el-form-item>
-              {% elif column.html_type == "checkbox" %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
-                  <el-checkbox v-model="formData.{{ column.python_field }}">{{ comment }}</el-checkbox>
-                </el-form-item>
-              {% elif column.html_type == "imageUpload" %}
-                <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
-                  <SingleImageUpload v-model="formData.{{ column.python_field }}" />
-                </el-form-item>
-              {% endif %}
-            {% endif %}
+          {% if column.is_insert == 1 or column.is_edit == 1 %}
+          {% set dict_type = column.dict_type %}
+          {% set column_comment = column.column_comment if column.column_comment else '' %}
+          {% set parentheseIndex = column_comment.find("（") %}
+          {% set comment = column_comment[:parentheseIndex] if parentheseIndex != -1 else column_comment %}
+          {% set required = 'true' if column.is_nullable == '1' else 'false' %}
+          {% if column.python_field == "status" %}
+          <el-form-item label="状态" prop="status" :required="true">
+            <el-radio-group v-model="formData.status">
+              <el-radio :value="true">启用</el-radio>
+              <el-radio :value="false">停用</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          {% elif column.html_type == "input" %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
+            <el-input v-model="formData.{{ column.python_field }}" placeholder="请输入{{ comment }}" />
+          </el-form-item>
+          {% elif column.html_type == "textarea" %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
+            <el-input v-model="formData.{{ column.python_field }}" type="textarea" placeholder="请输入{{ comment }}" rows="4" />
+          </el-form-item>
+          {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type != "" %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
+            <el-select v-model="formData.{{ column.python_field }}" placeholder="请选择{{ comment }}">
+              <el-option v-for="dict in dictStore.getDictArray('{{ dict_type }}')" :key="dict.dict_value" :label="dict.dict_label" :value="dict.dict_value" />
+            </el-select>
+          </el-form-item>
+          {% elif (column.html_type == "select" or column.html_type == "radio") and dict_type %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
+            <el-select v-model="formData.{{ column.python_field }}" placeholder="请选择{{ comment }}">
+              <el-option label="请选择字典生成" value="" />
+            </el-select>
+          </el-form-item>
+          {% elif column.html_type == "date" %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
+            <el-date-picker v-model="formData.{{ column.python_field }}" type="date" value-format="YYYY-MM-DD" placeholder="请选择{{ comment }}" />
+          </el-form-item>
+          {% elif column.html_type == "datetime" %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}" :required="{{ required }}">
+            <el-date-picker v-model="formData.{{ column.python_field }}" type="datetime" value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择{{ comment }}" />
+          </el-form-item>
+          {% elif column.html_type == "checkbox" %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
+            <el-checkbox v-model="formData.{{ column.python_field }}">{{ comment }}</el-checkbox>
+          </el-form-item>
+          {% elif column.html_type == "imageUpload" %}
+          <el-form-item label="{{ comment }}" prop="{{ column.python_field }}">
+            <SingleImageUpload v-model="formData.{{ column.python_field }}" />
+          </el-form-item>
+          {% endif %}
+          {% endif %}
           {% endfor %}
         </el-form>
       </template>
@@ -339,7 +337,7 @@ const tableColumns = ref([
   { prop: 'selection', label: '选择框', show: true },
   { prop: 'index', label: '序号', show: true },
   {% for column in columns %}
-  {% if column.is_list == "1" %}
+  {% if column.is_list == 1 %}
   { prop: '{{ column.python_field }}', label: '{{ column.column_comment or column.python_field }}', show: true },
   {% endif %}
   {% endfor %}
@@ -349,7 +347,7 @@ const tableColumns = ref([
 // 导出列（不含选择/序号/操作）
 const exportColumns = [
   {% for column in columns %}
-  {% if column.is_list == "1" %}
+  {% if column.is_list == 1 %}
   { prop: '{{ column.python_field }}', label: '{{ column.column_comment or column.python_field }}' },
   {% endif %}
   {% endfor %}
@@ -391,7 +389,7 @@ const dialogVisible = reactive({
 const formData = reactive<{{ class_name }}Form>({
   id: undefined,
   {% for column in columns %}
-  {% if column.is_insert == "1" or column.is_edit == "1" %}
+  {% if column.is_insert == 1 or column.is_edit == 1 %}
   {{ column.python_field }}: undefined,
   {% endif %}
   {% endfor %}
@@ -401,7 +399,7 @@ const formData = reactive<{{ class_name }}Form>({
 const initialFormData: {{ class_name }}Form = {
   id: undefined,
   {% for column in columns %}
-  {% if column.is_insert == "1" or column.is_edit == "1" %}
+  {% if column.is_insert == 1 or column.is_edit == 1 %}
   {{ column.python_field }}: {{ 'true' if column.python_field == 'status' else ('' if column.html_type == 'textarea' else 'undefined') }},
   {% endif %}
   {% endfor %}
@@ -420,8 +418,8 @@ async function resetForm() {
 // 表单验证规则（必填项按 is_nullable 生成）
 const rules = reactive({
   {% for column in columns %}
-  {% if column.is_insert == "1" or column.is_edit == "1" %}
-  {% set required = 'true' if column.is_nullable == '1' else 'false' %}
+  {% if column.is_insert == 1 or column.is_edit == 1 %}
+  {% set required = 'true' if column.is_nullable == 1 else 'false' %}
   {{ column.python_field }}: [
     { required: {{ required }}, message: '请输入{{ column.column_comment or column.python_field }}', trigger: 'blur' },
   ],
@@ -451,7 +449,7 @@ const queryFormData = reactive<{{ class_name }}PageQuery>({
   page_no: 1,
   page_size: 10,
   {% for column in columns %}
-  {% if column.is_query == "1" and column.query_type != "BETWEEN" %}
+  {% if column.is_query == 1 and column.query_type != "BETWEEN" %}
   {{ column.python_field }}: undefined,
   {% endif %}
   {% endfor %}

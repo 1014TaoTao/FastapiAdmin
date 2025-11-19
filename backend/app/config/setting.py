@@ -3,9 +3,8 @@
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Literal
+from typing import Any, List, Optional, Literal
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from uvicorn.config import LifespanType
 from urllib.parse import quote_plus
 
 from app.common.enums import EnvironmentEnum
@@ -32,13 +31,6 @@ class Settings(BaseSettings):
     SERVER_HOST: str = '0.0.0.0'        # 允许访问的IP地址
     SERVER_PORT: int = 8001             # 服务端口
     RELOAD: bool = True                 # 是否自动重启
-    FACTORY: bool = True                # 是否使用异步模式
-    LIFESPAN: LifespanType = 'on'       # 生命周期模式
-    WORKERS: int = 1                    # 启动进程数
-    LIMIT_CONCURRENCY: int = 1000       # 最大并发连接数
-    BACKLOG: int = 2048                 # 等待队列最大连接数
-    LIMIT_MAX_REQUESTS: int = 4094      # HTTP最大请求数
-    TIMEOUT_KEEP_ALIVE: int = 5         # 保持连接时间(秒)
 
     # ================================================= #
     # ******************* API文档配置 ****************** #
@@ -239,25 +231,7 @@ class Settings(BaseSettings):
             "redoc_url": None,
             "root_path": self.ROOT_PATH
         }
-
-    @property
-    def UVICORN_CONFIG(self) -> Dict[str, Any]:
-        """获取Uvicorn配置"""
-        from app.core.logger import setup_logging
-        setup_logging()
-        return {
-            "host": self.SERVER_HOST,
-            "port": self.SERVER_PORT,
-            "reload": self.RELOAD,
-            "log_config": None,
-            "workers": self.WORKERS,
-            "limit_concurrency": self.LIMIT_CONCURRENCY,
-            "backlog": self.BACKLOG,
-            "limit_max_requests": self.LIMIT_MAX_REQUESTS,
-            "timeout_keep_alive": self.TIMEOUT_KEEP_ALIVE,
-            "lifespan": self.LIFESPAN,
-            "factory": self.FACTORY,
-        }
+    
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:

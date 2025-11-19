@@ -136,15 +136,14 @@ cd backend
 pip3 install -r requirements.txt
 
 # Start the backend service
-python3 main.py run
+python main.py run
 # Or specify environment
-python3 main.py run --env=dev
+python main.py run --env=dev
 
-# Database migration (first run)
 # Generate migration files
-python3 main.py revision "Initial migration" --env=dev
+python main.py revision --env=dev
 # Apply migrations
-python3 main.py upgrade --env=dev
+python main.py upgrade --env=dev
 ```
 
 ### Frontend Setup
