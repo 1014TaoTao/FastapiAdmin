@@ -4,7 +4,7 @@ import importlib
 import re
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Literal, Union, Sequence, Optional, Generator
+from typing import Any, Dict, Literal, Union, Sequence, Optional, Generator
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.engine.row import Row
 from sqlalchemy.orm.collections import InstrumentedList
@@ -94,7 +94,7 @@ def get_parent_id_map(model_list: Sequence[DeclarativeBase]) -> Dict[int, int]:
     return {item.id: item.parent_id for item in model_list}
 
 
-def get_parent_recursion(id: int, id_map: Dict[int, int], ids: Optional[List[int]] = None) -> List[int]:
+def get_parent_recursion(id: int, id_map: dict[int, int], ids: list[int] | None = None) -> list[int]:
     """
     递归获取所有父级 ID
 
@@ -116,7 +116,7 @@ def get_parent_recursion(id: int, id_map: Dict[int, int], ids: Optional[List[int
     return ids
 
 
-def get_child_id_map(model_list: Sequence[DeclarativeBase]) -> Dict[int, List[int]]:
+def get_child_id_map(model_list: Sequence[DeclarativeBase]) -> dict[int, list[int]]:
     """
     获取子级 ID 映射字典
 
@@ -134,7 +134,7 @@ def get_child_id_map(model_list: Sequence[DeclarativeBase]) -> Dict[int, List[in
     return data_map
 
 
-def get_child_recursion(id: int, id_map: Dict[int, List[int]], ids: Optional[List[int]] = None) -> List[int]:
+def get_child_recursion(id: int, id_map: dict[int, list[int]], ids: list[int] | None= None) -> list[int]:
     """
     递归获取所有子级 ID
 
@@ -199,7 +199,7 @@ def recursive_to_tree(nodes: list[dict[str, Any]], *, parent_id: int | None = No
 
     参数:
     - nodes (list[dict[str, Any]]): 树节点列表。
-    - parent_id (int | None): 父节点 ID，默认为 None 表示根节点。
+    - parent_id (int | None): 父节点 ID,默认为 None 表示根节点。
 
     返回:
     - list[dict[str, Any]]: 构造后的树形结构列表。

@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
-from typing import TYPE_CHECKING
 from sqlalchemy import Boolean, String, Integer, Text, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.base_model import MappedBase, ModelMixin, UserMixin, TenantMixin, CustomerMixin
-
-if TYPE_CHECKING:
-    from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
-    from app.api.v1.module_system.customer.model import CustomerModel
 
 
 class JobModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
@@ -47,22 +41,6 @@ class JobModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
     # 关联关系
     job_logs: Mapped[list['JobLogModel'] | None] = relationship(
         back_populates="job", 
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="JobModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="JobModel.updated_id",
-        lazy="selectin"
-    )
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="JobModel.tenant_id",
-        lazy="selectin"
-    )
-    customer: Mapped["CustomerModel | None"] = relationship(
-        foreign_keys="JobModel.customer_id",
         lazy="selectin"
     )
 

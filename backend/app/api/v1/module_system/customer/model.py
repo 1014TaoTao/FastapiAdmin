@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING
 from datetime import datetime
-from sqlalchemy import DateTime, String, UniqueConstraint
+from sqlalchemy import DateTime, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 
 from app.core.base_model import ModelMixin, UserMixin, TenantMixin
@@ -10,7 +10,6 @@ from app.core.base_model import ModelMixin, UserMixin, TenantMixin
 
 if TYPE_CHECKING:
     from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
 
 
 class CustomerModel(ModelMixin, UserMixin, TenantMixin):
@@ -29,31 +28,19 @@ class CustomerModel(ModelMixin, UserMixin, TenantMixin):
     """
     __tablename__: str = 'system_customer'
     __table_args__: dict[str, str] = ({'comment': '客户表'})
+    __loader_options__: list[str] = ["created_by", "updated_by", "tenant"]
     
     name: Mapped[str] = mapped_column(String(64), nullable=False, comment='客户名称')
     code: Mapped[str] = mapped_column(String(20), nullable=False, index=True, comment='客户编码')
     start_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None, comment='开始时间')
     end_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, default=None, comment='结束时间')
     
-    # 关联关系 (继承自UserMixin和TenantMixin)
-    tenant: Mapped["TenantModel"] = relationship(
-        back_populates="customers",
-        foreign_keys="CustomerModel.tenant_id",
-        lazy="selectin"
-    )
     users: Mapped[list["UserModel"]] = relationship(
         back_populates="customer",
         foreign_keys="UserModel.customer_id",
         lazy="selectin"
     )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="CustomerModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="CustomerModel.updated_id",
-        lazy="selectin"
-    )
+
     
     @validates('name')
     def validate_name(self, key: str, name: str) -> str:

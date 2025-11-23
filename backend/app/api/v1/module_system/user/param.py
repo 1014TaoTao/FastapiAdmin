@@ -30,7 +30,7 @@ class UserQueryParam:
 
         # 精确查询字段
         self.dept_id = dept_id
-        self.creator_id = creator
+        self.created_id = creator
         self.status = status
         
         # 时间范围查询

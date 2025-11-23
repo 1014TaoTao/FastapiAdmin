@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import uuid
 from datetime import datetime
 from sqlalchemy import DateTime, String, Integer, Text, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, declared_attr, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs
+from typing import Optional
+
+from app.utils.common_util import uuid4_str
 
 
 class MappedBase(AsyncAttrs, DeclarativeBase):
@@ -52,18 +53,11 @@ class ModelMixin(MappedBase):
         - 4:全部数据 → WHERE tenant_id = current_tenant_id
         - 5:自定义 → WHERE dept_id IN (role_depts)
     
-    4. 软删除 (deleted_at):
-        - NULL: 正常数据(未删除)
-        - 时间戳: 已删除数据
-        - 查询时默认过滤: WHERE deleted_at IS NULL
-        - 优点: 数据可恢复,保留审计追踪
-        - 注意: 需要在唯一索引中包含deleted_at字段
-    
     继承规则：
     - 需要租户隔离的业务表继承此类
     - 不需要隔离的表(如租户表本身)只继承MappedBase
     
-    SQLAlchemy加载策略说明：
+    SQLAlchemy加载策略说明:
     - select(默认): 延迟加载,访问时单独查询
     - joined: 使用LEFT JOIN预加载
     - selectin: 使用IN查询批量预加载(推荐用于一对多)
@@ -78,12 +72,11 @@ class ModelMixin(MappedBase):
     
     # 基础字段
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment='主键ID')
-    uuid: Mapped[str] = mapped_column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False, unique=True, comment='UUID全局唯一标识')
+    uuid: Mapped[str] = mapped_column(String(64), default=uuid4_str, nullable=False, unique=True, comment='UUID全局唯一标识')
     status: Mapped[str] = mapped_column(String(10), default='0', nullable=False, comment="是否启用(0:启用 1:禁用)")
     description: Mapped[str | None] = mapped_column(Text, default=None, nullable=True, comment="备注/描述")
     created_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, nullable=False, comment='创建时间')
     updated_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False, comment='更新时间')
-    deleted_at: Mapped[datetime | None] = mapped_column(DateTime, default=None, nullable=True, index=True, comment='软删除时间(NULL:未删除, 时间戳:已删除)')
 
 
 class UserMixin(MappedBase):
@@ -119,6 +112,34 @@ class UserMixin(MappedBase):
         comment="更新人ID"
     )
 
+    @declared_attr
+    def created_by(cls) -> Mapped["UserModel | None"]:
+        """
+        创建人关联关系（延迟加载，避免循环依赖）
+        """
+        return relationship(
+            "UserModel",
+            primaryjoin=f"{cls.__name__}.created_id == UserModel.id",
+            lazy="selectin",
+            foreign_keys=lambda: [cls.created_id],
+            viewonly=True,
+            uselist=False
+        )
+
+    @declared_attr
+    def updated_by(cls) -> Mapped[Optional["UserModel"]]:
+        """
+        更新人关联关系（延迟加载，避免循环依赖）
+        """
+        return relationship(
+            "UserModel",
+            primaryjoin=f"{cls.__name__}.updated_id == UserModel.id",
+            lazy="selectin",
+            foreign_keys=lambda: [cls.updated_id],
+            viewonly=True,
+            uselist=False
+        )
+
 
 class TenantMixin(MappedBase):
     """
@@ -141,13 +162,27 @@ class TenantMixin(MappedBase):
     """
     __abstract__: bool = True
     
-    tenant_id: Mapped[int] = mapped_column(
+    tenant_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("system_tenant.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=False,
         index=True,
         comment="所属租户ID"
     )
+
+    @declared_attr
+    def tenant(cls) -> Mapped["TenantModel"]:
+        """
+        租户关联关系（延迟加载，避免循环依赖）
+        """
+        return relationship(
+            "TenantModel",
+            primaryjoin=f"{cls.__name__}.tenant_id == TenantModel.id",
+            lazy="selectin",
+            foreign_keys=lambda: [cls.tenant_id],
+            viewonly=True,
+            uselist=False
+        )
 
 
 class CustomerMixin(MappedBase):
@@ -181,3 +216,17 @@ class CustomerMixin(MappedBase):
         index=True,
         comment="所属客户ID(NULL表示租户级数据,>0表示客户级数据)"
     )
+
+    @declared_attr
+    def customer(cls) -> Mapped["CustomerModel | None"]:
+        """
+        客户关联关系（延迟加载，避免循环依赖）
+        """
+        return relationship(
+            "CustomerModel",
+            primaryjoin=f"{cls.__name__}.customer_id == CustomerModel.id",
+            lazy="selectin",
+            foreign_keys=lambda: [cls.customer_id],
+            viewonly=True,
+            uselist=False
+        )

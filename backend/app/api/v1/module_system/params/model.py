@@ -1,17 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING
-from sqlalchemy import String, Boolean, Integer, ForeignKey
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy import String, Boolean
+from sqlalchemy.orm import Mapped, mapped_column
 
-from app.core.base_model import ModelMixin, UserMixin, TenantMixin
-
-if TYPE_CHECKING:
-    from app.api.v1.module_system.tenant.model import TenantModel
-    from app.api.v1.module_system.user.model import UserModel
+from app.core.base_model import ModelMixin
 
 
-class ParamsModel(ModelMixin, UserMixin, TenantMixin):
+class ParamsModel(ModelMixin):
     """
     参数配置表
     
@@ -38,32 +33,7 @@ class ParamsModel(ModelMixin, UserMixin, TenantMixin):
     __tablename__: str = "system_param"
     __table_args__: dict[str, str] = ({'comment': '系统参数表'})
 
-    # 覆盖TenantMixin的tenant_id为可选(支持系统级参数)
-    tenant_id: Mapped[int | None] = mapped_column(  # type: ignore
-        Integer,
-        ForeignKey("system_tenant.id", ondelete="CASCADE"),
-        default=None,
-        nullable=True,
-        index=True,
-        comment="所属租户ID(NULL表示系统级参数,所有租户共享)"
-    )
-
     config_name: Mapped[str] = mapped_column(String(500), nullable=False, comment='参数名称')
     config_key: Mapped[str] = mapped_column(String(500), nullable=False, comment='参数键名')
     config_value: Mapped[str | None] = mapped_column(String(500), comment='参数键值')
     config_type: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True, comment="系统内置(True:是 False:否)")
-    
-    # 关联关系 (继承自UserMixin和TenantMixin)
-    tenant: Mapped["TenantModel | None"] = relationship(
-        foreign_keys="ParamsModel.tenant_id",
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="ParamsModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="ParamsModel.updated_id",
-        lazy="selectin"
-    )
-    

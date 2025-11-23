@@ -8,7 +8,7 @@ from app.core.base_model import ModelMixin, UserMixin, TenantMixin
 
 if TYPE_CHECKING:
     from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
+
 
 class PositionModel(ModelMixin, UserMixin, TenantMixin):
     """
@@ -36,17 +36,5 @@ class PositionModel(ModelMixin, UserMixin, TenantMixin):
     users: Mapped[list["UserModel"]] = relationship(
         secondary="system_user_positions", 
         back_populates="positions", 
-        lazy="selectin"
-    )
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="PositionModel.tenant_id",
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="PositionModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="PositionModel.updated_id",
         lazy="selectin"
     )

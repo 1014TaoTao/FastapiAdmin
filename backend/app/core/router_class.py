@@ -138,7 +138,7 @@ class OperationLogRoute(APIRoute):
                             response_json = response_data.decode() if isinstance(response_data, (bytes, bytearray)) else str(response_data),
                             process_time = process_time,
                             description = route.summary,
-                            creator_id = current_user_id
+                            created_id = current_user_id
                         ), auth = auth) 
             
             return response

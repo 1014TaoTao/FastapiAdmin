@@ -173,7 +173,7 @@ class RoleService:
             'description': '备注',
             'created_at': '创建时间',
             'updated_at': '更新时间',
-            'creator_id': '创建者ID',
+            'created_id': '创建者ID',
             'creator': '创建者',
         }
 

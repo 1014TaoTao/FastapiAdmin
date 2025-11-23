@@ -22,7 +22,7 @@ class JobQueryParam:
         self.name = ("like", f"%{name}%") if name else None
         
         # 精确查询字段
-        self.creator_id = creator
+        self.created_id = creator
         self.status = status
         
         # 时间范围查询

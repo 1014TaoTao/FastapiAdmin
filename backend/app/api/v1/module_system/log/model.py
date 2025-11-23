@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING
 from sqlalchemy import String, Integer, Text
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.base_model import ModelMixin, UserMixin, TenantMixin, CustomerMixin
-
-if TYPE_CHECKING:
-    from app.api.v1.module_system.tenant.model import TenantModel
-    from app.api.v1.module_system.customer.model import CustomerModel
-    from app.api.v1.module_system.user.model import UserModel
 
 
 class OperationLogModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
@@ -33,7 +27,7 @@ class OperationLogModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
     """
     __tablename__: str = "system_log"
     __table_args__: dict[str, str] = ({'comment': '系统日志表'})
-    __loader_options__: list[str] = ["creator"]
+    __loader_options__: list[str] = ["created_by", "updated_by", "tenant", "customer"]
 
     type: Mapped[int] = mapped_column(Integer, comment="日志类型(1登录日志 2操作日志)")
     request_path: Mapped[str] = mapped_column(String(255), comment="请求路径")
@@ -46,21 +40,3 @@ class OperationLogModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
     response_code: Mapped[int] = mapped_column(Integer, comment="响应状态码")
     response_json: Mapped[str | None] = mapped_column(Text, nullable=True, comment="响应体")
     process_time: Mapped[str | None] = mapped_column(String(20), nullable=True, comment="处理时间")
-    
-    # 关联关系 (继承自UserMixin, TenantMixin, CustomerMixin)
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="OperationLogModel.tenant_id",
-        lazy="selectin"
-    )
-    customer: Mapped["CustomerModel | None"] = relationship(
-        foreign_keys="OperationLogModel.customer_id",
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="OperationLogModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="OperationLogModel.updated_id",
-        lazy="selectin"
-    )

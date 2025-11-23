@@ -1,11 +1,13 @@
 [
   {
     "name": "管理员角色",
-    "data_scope": 4,
     "code": "ADMIN",
     "status": true,
     "order": 1,
+    "data_scope": "4",
     "description": "初始化角色",
-    "creator_id": 1
+    "tenant_id": 1,
+    "created_id": 1,
+    "updated_id": 1
   }
 ]

@@ -5,28 +5,47 @@
     "order": 1,
     "status": true,
     "parent_id": null,
+    "leader": "超级管理员",
+    "phone": "13800138000",
+    "email": "admin@example.com",
     "description": "集团总公司",
+    "tenant_id": 1,
     "children": [
       {
         "name": "北京分公司",
         "code": "BJ",
         "order": 1,
         "status": true,
+        "parent_id": null,
+        "leader": "分公司经理",
+        "phone": "13900139000",
+        "email": "manager@example.com",
         "description": "北京分公司",
+        "tenant_id": 1,
         "children": [
           {
             "name": "软件部",
             "code": "TECH",
             "order": 1,
             "status": true,
+            "parent_id": null,
+            "leader": "技术总监",
+            "phone": "13700137000",
+            "email": "tech@example.com",
             "description": "软件部",
+            "tenant_id": 1,
             "children": [
               {
                 "name": "开发组",
                 "code": "DEV",
                 "order": 1,
                 "status": true,
-                "description": "开发部"
+                "parent_id": null,
+                "leader": "开发主管",
+                "phone": "13600136000",
+                "email": "dev@example.com",
+                "description": "开发组",
+                "tenant_id": 1
               }
             ]
           }

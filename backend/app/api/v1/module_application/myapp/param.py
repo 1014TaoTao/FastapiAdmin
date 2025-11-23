@@ -22,7 +22,7 @@ class ApplicationQueryParam:
 
         # 精确查询字段
         self.status = status
-        self.creator_id = creator
+        self.created_id = creator
 
         # 时间范围查询
         if start_time and end_time:

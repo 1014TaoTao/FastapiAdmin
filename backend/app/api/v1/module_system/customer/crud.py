@@ -5,12 +5,12 @@ from typing import Dict, List, Optional, Sequence, Union, Any
 from app.core.base_crud import CRUDBase
 
 from app.api.v1.module_system.auth.schema import AuthSchema
-from .model import TenantModel
-from .schema import TenantCreateSchema, TenantUpdateSchema, TenantOutSchema
+from .model import CustomerModel
+from .schema import CustomerCreateSchema, CustomerUpdateSchema, CustomerOutSchema
 
 
-class TenantCRUD(CRUDBase[TenantModel, TenantCreateSchema, TenantUpdateSchema]):
-    """租户数据层"""
+class CustomerCRUD(CRUDBase[CustomerModel, CustomerCreateSchema, CustomerUpdateSchema]):
+    """客户数据层"""    
 
     def __init__(self, auth: AuthSchema) -> None:
         """
@@ -19,22 +19,22 @@ class TenantCRUD(CRUDBase[TenantModel, TenantCreateSchema, TenantUpdateSchema]):
         参数:
         - auth (AuthSchema): 认证信息模型
         """
-        super().__init__(model=TenantModel, auth=auth)
+        super().__init__(model=CustomerModel, auth=auth)
     
-    async def get_by_id_crud(self, id: int, preload: Optional[List[Union[str, Any]]] = None) -> Optional[TenantModel]:
+    async def get_by_id_crud(self, id: int, preload: Optional[List[Union[str, Any]]] = None) -> Optional[CustomerModel]:
         """
         详情
         
         参数:
-        - id (int): 租户ID
+        - id (int): 客户ID
         - preload (Optional[List[Union[str, Any]]]): 预加载关系，未提供时使用模型默认项
         
         返回:
-        - Optional[TenantModel]: 租户模型实例或None
+        - Optional[CustomerModel]: 客户模型实例或None
         """
         return await self.get(id=id, preload=preload)
     
-    async def list_crud(self, search: Optional[Dict] = None, order_by: Optional[List[Dict[str, str]]] = None, preload: Optional[List[Union[str, Any]]] = None) -> Sequence[TenantModel]:
+    async def list_crud(self, search: Optional[Dict] = None, order_by: Optional[List[Dict[str, str]]] = None, preload: Optional[List[Union[str, Any]]] = None) -> Sequence[CustomerModel]:
         """
         列表查询
         
@@ -48,28 +48,28 @@ class TenantCRUD(CRUDBase[TenantModel, TenantCreateSchema, TenantUpdateSchema]):
         """
         return await self.list(search=search, order_by=order_by, preload=preload)
     
-    async def create_crud(self, data: TenantCreateSchema) -> Optional[TenantModel]:
+    async def create_crud(self, data: CustomerCreateSchema) -> Optional[CustomerModel]:
         """
         创建
         
         参数:
-        - data (TenantCreateSchema): 租户创建模型
+        - data (CustomerCreateSchema): 客户创建模型
         
         返回:
-        - Optional[TenantModel]: 租户模型实例或None
+        - Optional[CustomerModel]: 客户模型实例或None
         """
         return await self.create(data=data)
     
-    async def update_crud(self, id: int, data: TenantUpdateSchema) -> Optional[TenantModel]:
+    async def update_crud(self, id: int, data: CustomerUpdateSchema) -> Optional[CustomerModel]:
         """
         更新
         
         参数:
-        - id (int): 租户ID
-        - data (TenantUpdateSchema): 租户更新模型
+        - id (int): 客户ID
+        - data (CustomerUpdateSchema): 客户更新模型
         
         返回:
-        - Optional[TenantModel]: 租户模型实例或None
+        - Optional[CustomerModel]: 客户模型实例或None
         """
         return await self.update(id=id, data=data)
     
@@ -78,7 +78,7 @@ class TenantCRUD(CRUDBase[TenantModel, TenantCreateSchema, TenantUpdateSchema]):
         批量删除
         
         参数:
-        - ids (List[int]): 租户ID列表
+        - ids (List[int]): 客户ID列表
         
         返回:
         - None
@@ -90,7 +90,7 @@ class TenantCRUD(CRUDBase[TenantModel, TenantCreateSchema, TenantUpdateSchema]):
         批量设置可用状态
         
         参数:
-        - ids (List[int]): 租户ID列表
+        - ids (List[int]): 客户ID列表
         - status (bool): 可用状态
         
         返回:
@@ -120,6 +120,6 @@ class TenantCRUD(CRUDBase[TenantModel, TenantCreateSchema, TenantUpdateSchema]):
             limit=limit,
             order_by=order_by_list,
             search=search_dict,
-            out_schema=TenantOutSchema,
+            out_schema=CustomerOutSchema,
             preload=preload
         )

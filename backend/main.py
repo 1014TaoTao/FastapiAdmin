@@ -47,8 +47,9 @@ def create_app() -> FastAPI:
 
     return app
 
+# typer.Option是非必填；typer.Argument是必填
 @fastapiadmin_cli.command(name="run", help="启动 FastapiAdmin 服务, 运行 python main.py run --env=dev 不加参数默认 dev 环境")
-def run(env: Annotated[EnvironmentEnum, typer.Option(EnvironmentEnum.DEV, "--env", help="运行环境 (dev, prod)")] = EnvironmentEnum.DEV) -> None:
+def run(env: Annotated[EnvironmentEnum, typer.Option("--env", help="运行环境 (dev, prod)")] = EnvironmentEnum.DEV) -> None:
     """启动FastAPI服务"""
 
     try:
@@ -84,14 +85,14 @@ def run(env: Annotated[EnvironmentEnum, typer.Option(EnvironmentEnum.DEV, "--env
         raise
 
 @fastapiadmin_cli.command(name="revision", help="生成新的 Alembic 迁移脚本, 运行 python main.py revision --env=dev")
-def revision(env: Annotated[EnvironmentEnum, typer.Argument(help="运行环境 (dev, prod)")] = EnvironmentEnum.DEV) -> None:
+def revision(env: Annotated[EnvironmentEnum, typer.Option("--env", help="运行环境 (dev, prod)")] = EnvironmentEnum.DEV) -> None:
     """生成新的 Alembic 迁移脚本"""
     os.environ["ENVIRONMENT"] = env.value
     command.revision(alembic_cfg, autogenerate=True, message="迁移脚本")
     typer.echo(f"迁移脚本已生成")
 
 @fastapiadmin_cli.command(name="upgrade", help="应用最新的 Alembic 迁移, 运行 python main.py upgrade --env=dev")
-def upgrade(env: Annotated[EnvironmentEnum, typer.Argument(help="运行环境 (dev, prod)")] = EnvironmentEnum.DEV) -> None:
+def upgrade(env: Annotated[EnvironmentEnum, typer.Option("--env", help="运行环境 (dev, prod)")] = EnvironmentEnum.DEV) -> None:
     """应用最新的 Alembic 迁移"""
     os.environ["ENVIRONMENT"] = env.value
     command.upgrade(alembic_cfg, "head")

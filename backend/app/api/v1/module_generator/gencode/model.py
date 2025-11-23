@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING
 from sqlalchemy import String, Integer, ForeignKey, Boolean
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy.sql import expression
@@ -8,10 +7,6 @@ from sqlalchemy.sql import expression
 from app.config.setting import settings
 from app.core.base_model import ModelMixin, UserMixin, TenantMixin
 from app.utils.common_util import SqlalchemyUtil
-
-if TYPE_CHECKING:
-    from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
 
 
 class GenTableModel(ModelMixin, UserMixin, TenantMixin):
@@ -59,18 +54,6 @@ class GenTableModel(ModelMixin, UserMixin, TenantMixin):
         order_by='GenTableColumnModel.sort', 
         back_populates='table',
         cascade='all, delete-orphan'
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="GenTableModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="GenTableModel.updated_id",
-        lazy="selectin"
-    )
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="GenTableModel.tenant_id",
-        lazy="selectin"
     )
     
     @validates('table_name')
@@ -142,18 +125,6 @@ class GenTableColumnModel(ModelMixin, UserMixin, TenantMixin):
 
     # 关联关系
     table: Mapped['GenTableModel'] = relationship(back_populates='columns')
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="GenTableColumnModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="GenTableColumnModel.updated_id",
-        lazy="selectin"
-    )
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="GenTableColumnModel.tenant_id",
-        lazy="selectin"
-    )
     
     @validates('column_name')
     def validate_column_name(self, key: str, column_name: str) -> str:

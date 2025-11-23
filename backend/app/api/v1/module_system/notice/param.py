@@ -23,7 +23,7 @@ class NoticeQueryParam:
         self.notice_title = ("like", notice_title)
 
         # 精确查询字段
-        self.creator_id = creator
+        self.created_id = creator
         self.status = status
         self.notice_type = notice_type
 

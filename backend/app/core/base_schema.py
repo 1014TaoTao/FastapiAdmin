@@ -14,8 +14,9 @@ class UserInfoSchema(BaseModel):
     name: str = Field(description="用户姓名")
     username: str = Field(description="用户名")
 
+
 class CommonSchema(BaseModel):
-    """用户信息模型"""
+    """通用信息模型"""
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(description="编号ID")
@@ -27,11 +28,31 @@ class BaseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: Optional[int] = Field(default=None, description="主键ID")
+    uuid: Optional[str] = Field(default=None, description="UUID")
+    status: Optional[bool] = Field(default=None, description="状态")
     description: Optional[str] = Field(default=None, description="描述")
-    created_at: Optional[DateTimeStr] = Field(default=None, description="创建时间")
-    updated_at: Optional[DateTimeStr] = Field(default=None, description="更新时间")
-    creator_id: Optional[int] = Field(default=None, description="创建人ID")
-    creator: Optional[UserInfoSchema] = Field(default=None, description="创建人信息")
+    created_time: Optional[DateTimeStr] = Field(default=None, description="创建时间")
+    updated_time: Optional[DateTimeStr] = Field(default=None, description="更新时间")
+    created_id: Optional[int] = Field(default=None, description="创建人ID")
+    created_by: Optional[UserInfoSchema] = Field(default=None, description="创建人信息")
+    updated_id: Optional[int] = Field(default=None, description="更新人ID")
+    updated_by: Optional[UserInfoSchema] = Field(default=None, description="更新人信息")
+
+
+class TenantSchema(BaseSchema):
+    """租户模型"""
+    model_config = ConfigDict(from_attributes=True)
+
+    tenant_id: Optional[int] = Field(default=None, description="所属租户ID")
+    tenant: Optional[CommonSchema] = Field(default=None, description="租户信息")
+
+
+class CustomerSchema(BaseSchema):
+    """客户模型"""
+    model_config = ConfigDict(from_attributes=True)
+
+    customer_id: Optional[int] = Field(default=None, description="所属客户ID")
+    customer: Optional[CommonSchema] = Field(default=None, description="客户信息")
 
 
 class BatchSetAvailable(BaseModel):
@@ -48,6 +69,7 @@ class UploadResponseSchema(BaseModel):
     file_name: Optional[str] = Field(default=None, description='新文件名称') 
     origin_name: Optional[str] = Field(default=None, description='原文件名称')
     file_url: Optional[str] = Field(default=None, description='新文件访问地址')
+
 
 class DownloadFileSchema(BaseModel):
     """下载文件模型"""

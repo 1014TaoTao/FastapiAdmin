@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING
 from sqlalchemy import String, Text
-from sqlalchemy.orm import relationship, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.base_model import ModelMixin, UserMixin, TenantMixin, CustomerMixin
-
-if TYPE_CHECKING:
-    from app.api.v1.module_system.tenant.model import TenantModel
-    from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.customer.model import CustomerModel
 
 
 class NoticeModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
@@ -37,26 +31,8 @@ class NoticeModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
     """
     __tablename__: str = "system_notice"
     __table_args__: dict[str, str] = ({'comment': '通知公告表'})
-    __loader_options__: list[str] = ["creator"]
+    __loader_options__: list[str] = ["created_by", "updated_by", "tenant", "customer"]
 
     notice_title: Mapped[str] = mapped_column(String(50), nullable=False, comment='公告标题')
-    notice_type: Mapped[str] = mapped_column(String(50), nullable=False, comment='公告类型（1通知 2公告）')
+    notice_type: Mapped[str] = mapped_column(String(50), nullable=False, comment='公告类型(1通知 2公告)')
     notice_content: Mapped[str | None] = mapped_column(Text, nullable=True, comment='公告内容')
-    
-    # 关联关系 (继承自UserMixin, TenantMixin, CustomerMixin)
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="NoticeModel.tenant_id",
-        lazy="selectin"
-    )
-    customer: Mapped["CustomerModel | None"] = relationship(
-        foreign_keys="NoticeModel.customer_id",
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="NoticeModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="NoticeModel.updated_id",
-        lazy="selectin"
-    )

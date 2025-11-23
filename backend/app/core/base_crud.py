@@ -209,8 +209,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             obj = self.model(**obj_dict)
             
             # 设置创建人ID（存在该字段时）
-            if hasattr(obj, "creator_id") and self.current_user:
-                setattr(obj, "creator_id", self.current_user.id)
+            if hasattr(obj, "created_id") and self.current_user:
+                setattr(obj, "created_id", self.current_user.id)
             
             self.db.add(obj)
             await self.db.flush()
@@ -335,8 +335,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         if not self.current_user or not self.auth.check_data_scope:
             return None
 
-        # 如果模型没有创建人creator_id字段,则不限制
-        if not hasattr(self.model, "creator_id"):
+        # 如果模型没有创建人created_id字段,则不限制
+        if not hasattr(self.model, "created_id"):
             return None
         
         # 超级管理员可以查看所有数据
@@ -345,9 +345,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             
         # 如果用户没有部门或角色,则只能查看自己的数据
         if not getattr(self.current_user, "dept_id", None) or not getattr(self.current_user, "roles", None):
-            creator_id_attr = getattr(self.model, "creator_id", None)
-            if creator_id_attr is not None:
-                return creator_id_attr == self.current_user.id
+            created_id_attr = getattr(self.model, "created_id", None)
+            if created_id_attr is not None:
+                return created_id_attr == self.current_user.id
             return None
         
         # 获取用户所有角色的权限范围
@@ -374,9 +374,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if hasattr(UserModel, 'dept_id') and creator_rel is not None:
                 return creator_rel.has(getattr(UserModel, 'dept_id').in_(list(dept_ids)))
             else:
-                creator_id_attr = getattr(self.model, "creator_id", None)
-                if creator_id_attr is not None:
-                    return creator_id_attr == self.current_user.id
+                created_id_attr = getattr(self.model, "created_id", None)
+                if created_id_attr is not None:
+                    return created_id_attr == self.current_user.id
                 return None
 
         # 处理其他数据权限范围
@@ -384,9 +384,9 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         
         if 1 in data_scopes:
             # 仅本人数据
-            creator_id_attr = getattr(self.model, "creator_id", None)
-            if creator_id_attr is not None:
-                return creator_id_attr == self.current_user.id
+            created_id_attr = getattr(self.model, "created_id", None)
+            if created_id_attr is not None:
+                return created_id_attr == self.current_user.id
             return None
 
         if 2 in data_scopes and dept_id_val is not None:
@@ -411,15 +411,15 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             if hasattr(UserModel, 'dept_id') and creator_rel is not None and dept_ids:
                 return creator_rel.has(getattr(UserModel, 'dept_id').in_(list(dept_ids)))
             else:
-                creator_id_attr = getattr(self.model, "creator_id", None)
-                if creator_id_attr is not None:
-                    return creator_id_attr == self.current_user.id
+                created_id_attr = getattr(self.model, "created_id", None)
+                if created_id_attr is not None:
+                    return created_id_attr == self.current_user.id
                 return None
 
         # 默认情况下，只能查看自己的数据
-        creator_id_attr = getattr(self.model, "creator_id", None)
-        if creator_id_attr is not None:
-            return creator_id_attr == self.current_user.id
+        created_id_attr = getattr(self.model, "created_id", None)
+        if created_id_attr is not None:
+            return created_id_attr == self.current_user.id
         return None
 
     async def __build_conditions(self, **kwargs) -> List[ColumnElement]:

@@ -5,8 +5,7 @@
     "config_value": "FastApiAdmin",
     "config_type": true,
     "status": true,
-    "description": "网站名称",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "网站描述",
@@ -14,8 +13,7 @@
     "config_value": "FastApiAdmin 是完全开源的权限管理系统",
     "config_type": true,
     "status": true,
-    "description": "网站描述",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "网页图标",
@@ -23,8 +21,7 @@
     "config_value": "https://service.fastapiadmin.com/api/v1/static/image/favicon.png",
     "config_type": true,
     "status": true,
-    "description": "网页图标",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "网站Logo",
@@ -32,8 +29,7 @@
     "config_value": "https://service.fastapiadmin.com/api/v1/static/image/logo.png",
     "config_type": true,
     "status": true,
-    "description": "网站Logo",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "登录背景",
@@ -41,8 +37,7 @@
     "config_value": "https://service.fastapiadmin.com/api/v1/static/image/background.svg",
     "config_type": true,
     "status": true,
-    "description": "登录背景",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "版权信息",
@@ -50,8 +45,7 @@
     "config_value": "Copyright © 2025-2026 service.fastapiadmin.com 版权所有",
     "config_type": true,
     "status": true,
-    "description": "版权信息",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "备案信息",
@@ -59,8 +53,7 @@
     "config_value": "陕ICP备2025069493号-1",
     "config_type": true,
     "status": true,
-    "description": "备案信息",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "帮助文档",
@@ -68,8 +61,7 @@
     "config_value": "https://service.fastapiadmin.com",
     "config_type": true,
     "status": true,
-    "description": "帮助文档",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "隐私政策",
@@ -77,8 +69,7 @@
     "config_value": "https://github.com/1014TaoTao/FastapiAdmin/blob/master/LICENSE",
     "config_type": true,
     "status": true,
-    "description": "隐私政策",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "用户协议",
@@ -86,8 +77,7 @@
     "config_value": "https://github.com/1014TaoTao/FastapiAdmin/blob/master/LICENSE",
     "config_type": true,
     "status": true,
-    "description": "用户协议",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "源码代码",
@@ -95,8 +85,7 @@
     "config_value": "https://github.com/1014TaoTao/FastapiAdmin.git",
     "config_type": true,
     "status": true,
-    "description": "源码代码",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "项目版本",
@@ -104,8 +93,7 @@
     "config_value": "2.0.0",
     "config_type": true,
     "status": true,
-    "description": "项目版本",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "演示模式启用",
@@ -113,8 +101,7 @@
     "config_value": "false",
     "config_type": true,
     "status": true,
-    "description": "是否开启演示模式",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "演示访问IP白名单",
@@ -122,8 +109,7 @@
     "config_value": "[\"127.0.0.1\"]",
     "config_type": true,
     "status": true,
-    "description": "演示模式IP白名单列表",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "接口白名单",
@@ -131,8 +117,7 @@
     "config_value": "[\"/api/v1/system/auth/login\", \"/api/v1/system/auth/token/refresh\", \"/api/v1/system/auth/captcha/get\", \"/api/v1/system/auth/logout\", \"/api/v1/system/config/info\", \"/api/v1/system/user/current/info\", \"/api/v1/system/notice/available\"]",
     "config_type": true,
     "status": true,
-    "description": "接口白名单",
-    "creator_id": 1
+    "description": "初始化数据"
   },
   {
     "config_name": "访问IP黑名单",
@@ -140,7 +125,6 @@
     "config_value": "[]",
     "config_type": true,
     "status": true,
-    "description": "访问IP黑名单",
-    "creator_id": 1
+    "description": "初始化数据"
   }
 ]

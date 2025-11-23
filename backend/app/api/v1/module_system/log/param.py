@@ -25,7 +25,7 @@ class OperationLogQueryParam:
         self.request_path = ("like", f"%{request_path}%") if request_path else None
         
         # 精确查询字段
-        self.creator_id = creator
+        self.created_id = creator
         self.request_method = request_method
         self.request_ip = request_ip
         self.response_code = response_code

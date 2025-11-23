@@ -6,12 +6,10 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from app.core.base_model import MappedBase, ModelMixin, UserMixin, TenantMixin
 
-# 使用TYPE_CHECKING避免循环导入
 if TYPE_CHECKING:
     from app.api.v1.module_system.menu.model import MenuModel
     from app.api.v1.module_system.dept.model import DeptModel
     from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
 
 
 class RoleMenusModel(MappedBase):
@@ -70,25 +68,25 @@ class RoleModel(ModelMixin, UserMixin, TenantMixin):
     - 角色不属于客户(customer_id不需要)
     - 通过角色分配菜单权限和数据权限
     
-    数据权限实现（data_scope字段）:
+    数据权限实现(data_scope字段):
     ===========================
     - 1: 仅本人数据权限
       * 实现: WHERE created_id = current_user.id
       * 场景: 普通员工只能看自己创建的数据
-      
+    
     - 2: 本部门数据权限
       * 实现: WHERE user.dept_id = current_user.dept_id
       * 场景: 部门经理看本部门所有人的数据
-      
+    
     - 3: 本部门及以下数据权限
       * 实现: WHERE dept.tree_path LIKE 'current_user.dept.tree_path%'
       * 场景: 总监看本部门及所有下级部门的数据
-      
+    
     - 4: 全部数据权限
       * 实现: WHERE tenant_id = current_user.tenant_id
       * 场景: 租户管理员看租户内所有数据
       * 注意: 客户用户即使有此权限也只能看本客户数据
-      
+    
     - 5: 自定义数据权限
       * 实现: WHERE dept_id IN (SELECT dept_id FROM system_role_depts WHERE role_id IN current_user.role_ids)
       * 场景: 跨部门权限,如人事可以看多个指定部门
@@ -130,16 +128,3 @@ class RoleModel(ModelMixin, UserMixin, TenantMixin):
         back_populates="roles", 
         lazy="selectin"
     )
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="RoleModel.tenant_id",
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="RoleModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="RoleModel.updated_id",
-        lazy="selectin"
-    )
-    

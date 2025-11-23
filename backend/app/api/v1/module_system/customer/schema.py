@@ -6,10 +6,10 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from app.core.base_schema import BaseSchema
 
 
-class TenantCreateSchema(BaseModel):
+class CustomerCreateSchema(BaseModel):
     """新增模型"""
-    name: str = Field(..., max_length=64, description='租户名称')
-    code: Optional[str] = Field(default=None, max_length=20, description='租户编码')
+    name: str = Field(..., max_length=64, description='客户名称')
+    code: Optional[str] = Field(default=None, max_length=20, description='客户编码')    
     status: bool = Field(True, description="是否启用(True:启用 False:禁用)")
     description: Optional[str] = Field(default=None, max_length=255, description="描述")
 
@@ -35,11 +35,11 @@ class TenantCreateSchema(BaseModel):
         
         return self
 
-class TenantUpdateSchema(TenantCreateSchema):
+class CustomerUpdateSchema(CustomerCreateSchema):
     """更新模型"""
     ...
 
 
-class TenantOutSchema(TenantCreateSchema, BaseSchema):
+class CustomerOutSchema(CustomerCreateSchema, BaseSchema):
     """响应模型"""
     model_config = ConfigDict(from_attributes=True)

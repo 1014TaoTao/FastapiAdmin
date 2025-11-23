@@ -11,8 +11,6 @@ if TYPE_CHECKING:
     from app.api.v1.module_system.dept.model import DeptModel
     from app.api.v1.module_system.position.model import PositionModel
     from app.api.v1.module_system.role.model import RoleModel
-    from app.api.v1.module_system.tenant.model import TenantModel
-    from app.api.v1.module_system.customer.model import CustomerModel
 
 
 class UserRolesModel(MappedBase):
@@ -120,7 +118,6 @@ class UserModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
     user_type: Mapped[int] = mapped_column(Integer, nullable=False, default=1, comment="用户类型(0:系统用户 1:租户用户 2:客户用户)")
     salt: Mapped[str | None] = mapped_column(String(255), nullable=True, comment="加密盐")
     
-    # 部门关联
     dept_id: Mapped[int | None] = mapped_column(
         Integer, 
         ForeignKey('system_dept.id', ondelete="SET NULL", onupdate="CASCADE"), 
@@ -128,8 +125,6 @@ class UserModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
         index=True, 
         comment="部门ID"
     )
-    
-    # 关联关系 (继承自UserMixin, TenantMixin, CustomerMixin)
     dept: Mapped["DeptModel | None"] = relationship(
         back_populates="users", 
         foreign_keys=[dept_id], 
@@ -145,24 +140,3 @@ class UserModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
         back_populates="users", 
         lazy="selectin"
     )
-    tenant: Mapped["TenantModel"] = relationship(
-        back_populates="users",
-        foreign_keys="UserModel.tenant_id",
-        lazy="selectin"
-    )
-    customer: Mapped["CustomerModel | None"] = relationship(
-        back_populates="users",
-        foreign_keys="UserModel.customer_id",
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="UserModel.created_id",
-        remote_side="UserModel.id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="UserModel.updated_id",
-        remote_side="UserModel.id",
-        lazy="selectin"
-    )
-

@@ -21,7 +21,7 @@ class {{ class_name }}Model(CreatorMixin):
     __loader_options__ = ["creator"]
 
     {% for column in columns %}
-    {% if column.column_name not in ['id', 'creator_id', 'description', 'created_at', 'updated_at'] %}
+    {% if column.column_name not in ['id', 'created_id', 'description', 'created_at', 'updated_at'] %}
     {{ column.column_name }}: Mapped[Optional[{{ column.python_type }}]] = mapped_column({{ column.column_type|get_sqlalchemy_type }}, {% if column.pk %}primary_key=True, {% endif %}{% if column.increment %}autoincrement=True, {% endif %}{% if column.required or column.pk %}nullable=False{% else %}nullable=True{% endif %}, comment='{{ column.column_comment }}')
     {% endif %}
     {% endfor %}

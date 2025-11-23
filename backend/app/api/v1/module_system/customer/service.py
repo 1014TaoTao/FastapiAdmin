@@ -11,14 +11,14 @@ from app.utils.excel_util import ExcelUtil
 from app.core.logger import log
 
 from app.api.v1.module_system.auth.schema import AuthSchema
-from .schema import TenantCreateSchema, TenantUpdateSchema, TenantOutSchema
-from .param import TenantQueryParam
-from .crud import TenantCRUD
+from .schema import CustomerCreateSchema, CustomerUpdateSchema, CustomerOutSchema
+from .param import CustomerQueryParam
+from .crud import CustomerCRUD
 
 
-class TenantService:
+class CustomerService:
     """
-    租户管理模块服务层
+    客户管理模块服务层
     """
     
     @classmethod
@@ -28,35 +28,35 @@ class TenantService:
         
         参数:
         - auth (AuthSchema): 认证信息模型
-        - id (int): 租户ID
+        - id (int): 客户ID
         
         返回:
-        - Dict: 租户模型实例字典
+        - Dict: 客户模型实例字典
         """
-        obj = await TenantCRUD(auth).get_by_id_crud(id=id)
+        obj = await CustomerCRUD(auth).get_by_id_crud(id=id)
         if not obj:
             raise CustomException(msg="该数据不存在")
-        return TenantOutSchema.model_validate(obj).model_dump()
+        return CustomerOutSchema.model_validate(obj).model_dump()
     
     @classmethod
-    async def list_service(cls, auth: AuthSchema, search: Optional[TenantQueryParam] = None, order_by: Optional[List[Dict[str, str]]] = None) -> List[Dict]:
+    async def list_service(cls, auth: AuthSchema, search: Optional[CustomerQueryParam] = None, order_by: Optional[List[Dict[str, str]]] = None) -> List[Dict]:
         """
         列表查询
         
         参数:
         - auth (AuthSchema): 认证信息模型
-        - search (Optional[TenantQueryParam]): 查询参数
+        - search (Optional[CustomerQueryParam]): 查询参数
         - order_by (Optional[List[Dict[str, str]]]): 排序参数
         
         返回:
-        - List[Dict]: 租户模型实例字典列表
+        - List[Dict]: 客户模型实例字典列表
         """
         search_dict = search.__dict__ if search else None
-        obj_list = await TenantCRUD(auth).list_crud(search=search_dict, order_by=order_by)
-        return [TenantOutSchema.model_validate(obj).model_dump() for obj in obj_list]
+        obj_list = await CustomerCRUD(auth).list_crud(search=search_dict, order_by=order_by)
+        return [CustomerOutSchema.model_validate(obj).model_dump() for obj in obj_list]
     
     @classmethod
-    async def page_service(cls, auth: AuthSchema, page_no: int, page_size: int, search: Optional[TenantQueryParam] = None, order_by: Optional[List[Dict[str, str]]] = None) -> Dict:
+    async def page_service(cls, auth: AuthSchema, page_no: int, page_size: int, search: Optional[CustomerQueryParam] = None, order_by: Optional[List[Dict[str, str]]] = None) -> Dict:
         """
         分页查询
         
@@ -64,7 +64,7 @@ class TenantService:
         - auth (AuthSchema): 认证信息模型
         - page_no (int): 页码
         - page_size (int): 每页数量
-        - search (Optional[TenantQueryParam]): 查询参数
+        - search (Optional[CustomerQueryParam]): 查询参数
         - order_by (Optional[List[Dict[str, str]]]): 排序参数
         
         返回:
@@ -74,7 +74,7 @@ class TenantService:
         order_by_list = order_by or [{'id': 'asc'}]
         offset = (page_no - 1) * page_size
         
-        result = await TenantCRUD(auth).page_crud(
+        result = await CustomerCRUD(auth).page_crud(
             offset=offset,
             limit=page_size,
             order_by=order_by_list,
@@ -83,51 +83,51 @@ class TenantService:
         return result
     
     @classmethod
-    async def create_service(cls, auth: AuthSchema, data: TenantCreateSchema) -> Dict:
+    async def create_service(cls, auth: AuthSchema, data: CustomerCreateSchema) -> Dict:
         """
         创建
         
         参数:
         - auth (AuthSchema): 认证信息模型
-        - data (TenantCreateSchema): 租户创建模型
+        - data (CustomerCreateSchema): 客户创建模型
         
         返回:
-        - Dict: 租户模型实例字典
+        - Dict: 客户模型实例字典
         """
-        obj = await TenantCRUD(auth).get(name=data.name)
+        obj = await CustomerCRUD(auth).get(name=data.name)
         if obj:
             raise CustomException(msg='创建失败，名称已存在')
-        obj = await TenantCRUD(auth).get(code=data.code)
+        obj = await CustomerCRUD(auth).get(code=data.code)
         if obj:
             raise CustomException(msg='创建失败，编码已存在')
-        obj = await TenantCRUD(auth).create_crud(data=data)
-        return TenantOutSchema.model_validate(obj).model_dump()
+        obj = await CustomerCRUD(auth).create_crud(data=data)
+        return CustomerOutSchema.model_validate(obj).model_dump()
     
     @classmethod
-    async def update_service(cls, auth: AuthSchema, id: int, data: TenantUpdateSchema) -> Dict:
+    async def update_service(cls, auth: AuthSchema, id: int, data: CustomerUpdateSchema) -> Dict:
         """
         更新
         
         参数:
         - auth (AuthSchema): 认证信息模型
-        - id (int): 租户ID
-        - data (TenantUpdateSchema): 租户更新模型
+        - id (int): 客户ID
+        - data (CustomerUpdateSchema): 客户更新模型
         
         返回:
-        - Dict: 租户模型实例字典
+        - Dict: 客户模型实例字典
         """
         # 检查数据是否存在
-        obj = await TenantCRUD(auth).get_by_id_crud(id=id)
+        obj = await CustomerCRUD(auth).get_by_id_crud(id=id)
         if not obj:
             raise CustomException(msg='更新失败，该数据不存在')
         
         # 检查名称是否重复
-        exist_obj = await TenantCRUD(auth).get(name=data.name)
+        exist_obj = await CustomerCRUD(auth).get(name=data.name)
         if exist_obj and exist_obj.id != id:
             raise CustomException(msg='更新失败，名称重复')
             
-        obj = await TenantCRUD(auth).update_crud(id=id, data=data)
-        return TenantOutSchema.model_validate(obj).model_dump()
+        obj = await CustomerCRUD(auth).update_crud(id=id, data=data)
+        return CustomerOutSchema.model_validate(obj).model_dump()
     
     @classmethod
     async def delete_service(cls, auth: AuthSchema, ids: List[int]) -> None:
@@ -136,7 +136,7 @@ class TenantService:
         
         参数:
         - auth (AuthSchema): 认证信息模型
-        - ids (List[int]): 租户ID列表
+        - ids (List[int]): 客户ID列表
         
         返回:
         - None
@@ -146,11 +146,11 @@ class TenantService:
         
         # 检查所有要删除的数据是否存在
         for id in ids:
-            obj = await TenantCRUD(auth).get_by_id_crud(id=id)
+            obj = await CustomerCRUD(auth).get_by_id_crud(id=id)
             if not obj:
                 raise CustomException(msg=f'删除失败，ID为{id}的数据不存在')
                 
-        await TenantCRUD(auth).delete_crud(ids=ids)
+        await CustomerCRUD(auth).delete_crud(ids=ids)
     
     @classmethod
     async def set_available_service(cls, auth: AuthSchema, data: BatchSetAvailable) -> None:
@@ -164,7 +164,7 @@ class TenantService:
         返回:
         - None
         """
-        await TenantCRUD(auth).set_available_crud(ids=data.ids, status=data.status)
+        await CustomerCRUD(auth).set_available_crud(ids=data.ids, status=data.status)
     
     @classmethod
     async def batch_export_service(cls, obj_list: List[Dict[str, Any]]) -> bytes:
@@ -172,7 +172,7 @@ class TenantService:
         批量导出
         
         参数:
-        - obj_list (List[Dict[str, Any]]): 租户模型实例字典列表
+        - obj_list (List[Dict[str, Any]]): 客户模型实例字典列表
         
         返回:
         - bytes: Excel文件字节流
@@ -185,6 +185,7 @@ class TenantService:
             'created_at': '创建时间',
             'updated_at': '更新时间',
             'creator': '创建者',
+            'code': '编码',
         }
 
         # 复制数据并转换状态

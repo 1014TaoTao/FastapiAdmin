@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING
 from sqlalchemy import JSON, String, Integer
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.base_model import ModelMixin, UserMixin, TenantMixin, CustomerMixin
-
-if TYPE_CHECKING:
-    from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
-    from app.api.v1.module_system.customer.model import CustomerModel
 
 
 class McpModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
@@ -31,26 +25,8 @@ class McpModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
     __loader_options__: list[str] = ["created_by", "updated_by", "tenant", "customer"]
 
     name: Mapped[str] = mapped_column(String(50), comment='MCP 名称')
-    type: Mapped[int] = mapped_column(Integer, default=0, comment='MCP 类型（0:stdio 1:sse）')
+    type: Mapped[int] = mapped_column(Integer, default=0, comment='MCP 类型(0:stdio 1:sse)')
     url: Mapped[str | None] = mapped_column(String(255), default=None, comment='远程 SSE 地址')
     command: Mapped[str | None] = mapped_column(String(255), default=None, comment='MCP 命令')
     args: Mapped[str | None] = mapped_column(String(255), default=None, comment='MCP 命令参数')
     env: Mapped[dict[str, str] | None] = mapped_column(JSON(), default=None, comment='MCP 环境变量')
-    
-    # 关联关系 (覆盖Mixin中的property)
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="McpModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="McpModel.updated_id",
-        lazy="selectin"
-    )
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="McpModel.tenant_id",
-        lazy="selectin"
-    )
-    customer: Mapped["CustomerModel | None"] = relationship(
-        foreign_keys="McpModel.customer_id",
-        lazy="selectin"
-    )

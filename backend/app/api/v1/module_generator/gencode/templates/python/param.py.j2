@@ -38,7 +38,7 @@ class {{ class_name }}QueryParam:
         self.{{ column.column_name }} = {{ column.column_name }}
         {% endif %}
         {% endfor %}
-        self.creator_id = creator
+        self.created_id = creator
 
         # 时间范围查询
         if start_time and end_time:

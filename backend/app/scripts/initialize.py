@@ -2,7 +2,6 @@
 
 import asyncio
 import json
-from pathlib import Path
 from typing import Dict, List
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,8 +10,8 @@ from app.config.path_conf import SCRIPT_DIR
 from app.core.logger import log
 from app.core.database import async_db_session, async_engine
 from app.core.base_model import MappedBase
-from app.config.setting import settings
 
+from app.api.v1.module_system.tenant.model import TenantModel
 from app.api.v1.module_system.user.model import UserModel, UserRolesModel
 from app.api.v1.module_system.role.model import RoleModel
 from app.api.v1.module_system.dept.model import DeptModel
@@ -32,15 +31,20 @@ class InitializeData:
         """
         # 按照依赖关系排序：先创建基础表，再创建关联表
         self.prepare_init_models = [
-            # 基础表（项目启动初始化数据表，部门和菜单必须先创建）
-            DeptModel,
-            MenuModel,
-            UserModel,
-            RoleModel,
-            UserRolesModel,
+            # 核心租户表 - 必须第一个初始化
+            TenantModel,
             ParamsModel,
             DictTypeModel,
-            DictDataModel
+            DictDataModel,
+            # 基础表（项目启动初始化数据表，部门和菜单必须先创建）
+            MenuModel,
+            DeptModel,
+            # 用户表 - 必须在角色表之前，因为角色依赖用户(created_id)
+            UserModel,
+            # 角色表
+            RoleModel,
+            # 关联表和其他表
+            UserRolesModel
         ]
     
     async def __init_create_table(self) -> None:

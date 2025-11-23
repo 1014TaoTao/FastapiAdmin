@@ -4,14 +4,14 @@ from typing import TYPE_CHECKING
 from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
-from app.core.base_model import ModelMixin, UserMixin, TenantMixin
+from app.core.base_model import ModelMixin, TenantMixin
 
 if TYPE_CHECKING:
     from app.api.v1.module_system.role.model import RoleModel
     from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
 
-class DeptModel(ModelMixin, UserMixin, TenantMixin):
+
+class DeptModel(ModelMixin, TenantMixin):
     """
     部门模型
     
@@ -34,6 +34,7 @@ class DeptModel(ModelMixin, UserMixin, TenantMixin):
     """
     __tablename__: str = "system_dept"
     __table_args__: dict[str, str] = ({'comment': '部门表'})
+    __loader_options__: list[str] = ["tenant"]
 
     name: Mapped[str] = mapped_column(String(40), nullable=False, comment="部门名称")
     order: Mapped[int] = mapped_column(Integer, nullable=False, default=999, comment="显示排序")
@@ -50,13 +51,6 @@ class DeptModel(ModelMixin, UserMixin, TenantMixin):
         index=True, 
         comment="父级部门ID"
     )
-    tree_path: Mapped[str | None] = mapped_column(
-        String(500), 
-        default=None, 
-        index=True, 
-        comment="部门树路径(格式:/1/2/3/),用于高效查询本部门及以下数据权限"
-    )
-    
     # 关联关系 (继承自UserMixin和TenantMixin)
     parent: Mapped["DeptModel | None"] = relationship(
         back_populates='children', 
@@ -79,17 +73,3 @@ class DeptModel(ModelMixin, UserMixin, TenantMixin):
         foreign_keys="UserModel.dept_id",
         lazy="selectin"
     )
-    tenant: Mapped["TenantModel"] = relationship(
-        back_populates="depts",
-        foreign_keys="DeptModel.tenant_id",
-        lazy="selectin"
-    )
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="DeptModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="DeptModel.updated_id",
-        lazy="selectin"
-    )
-    

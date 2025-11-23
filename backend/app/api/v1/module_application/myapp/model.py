@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import TYPE_CHECKING
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.base_model import ModelMixin, UserMixin, TenantMixin, CustomerMixin
-
-if TYPE_CHECKING:
-    from app.api.v1.module_system.user.model import UserModel
-    from app.api.v1.module_system.tenant.model import TenantModel
-    from app.api.v1.module_system.customer.model import CustomerModel
 
 
 class ApplicationModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
@@ -31,21 +25,3 @@ class ApplicationModel(ModelMixin, UserMixin, TenantMixin, CustomerMixin):
     name: Mapped[str] = mapped_column(String(64), nullable=False, comment='应用名称')
     access_url: Mapped[str] = mapped_column(String(500), nullable=False, comment='访问地址')
     icon_url: Mapped[str | None] = mapped_column(String(300), nullable=True, comment='应用图标URL')
-    
-    # 关联关系 (覆盖Mixin中的property)
-    created_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="ApplicationModel.created_id",
-        lazy="selectin"
-    )
-    updated_by: Mapped["UserModel | None"] = relationship(
-        foreign_keys="ApplicationModel.updated_id",
-        lazy="selectin"
-    )
-    tenant: Mapped["TenantModel"] = relationship(
-        foreign_keys="ApplicationModel.tenant_id",
-        lazy="selectin"
-    )
-    customer: Mapped["CustomerModel | None"] = relationship(
-        foreign_keys="ApplicationModel.customer_id",
-        lazy="selectin"
-    )
