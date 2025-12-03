@@ -183,6 +183,7 @@ class InitializeData:
         async with async_db_session() as session:
             async with session.begin():
                 await self.__init_data(session)
+                # session.add_all(objs)
                 # 确保提交事务
                 await session.commit()
     

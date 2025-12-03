@@ -97,7 +97,7 @@ export interface {{ class_name }}PageQuery extends PageQuery {
   {% for column in columns %}
   {% if column.is_query and column.column != "BETWEEN" %}
   {{ column.column_name }}?: {{
-    'boolean' if ('status' in (column.python_field|lower)) or (column.html_type == 'radio')
+    'string' if ('status' in (column.python_field|lower)) or (column.html_type == 'radio')
     else 'number' if column.is_pk == '1'
     else 'number' if column.column_name in ['created_id', 'updated_id']
     else 'string'
@@ -112,11 +112,13 @@ export interface {{ class_name }}PageQuery extends PageQuery {
 export interface {{ class_name }}Table extends BaseType{
   index?: number;
   {% for column in columns %}
+  {% if column.column_name not in ['id', 'uuid', 'status', 'description', 'created_time', 'updated_time'] %}
   {{ column.column_name }}?: {{
     'boolean' if ('status' in (column.column_name|lower)) or (column.html_type == 'radio')
     else 'number' if column.is_pk == 1
     else 'string'
   }};
+  {% endif %}
   {% endfor %}
   created_by?: creatorType;
   updated_by?: updatorType;

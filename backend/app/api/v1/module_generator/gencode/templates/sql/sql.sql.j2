@@ -1,57 +1,33 @@
--- 统一的菜单 SQL（兼容 MySQL / PostgreSQL），对齐到 system_menu 表结构
-
+-- 统一的菜单 SQL（兼容 MySQL / PostgreSQL），对齐到 sys_menu 表结构
 {# 布尔值与保留字列名处理 #}
 {% set b_true = 1 if db_type == 'mysql' else true %}
 {% set b_false = 0 if db_type == 'mysql' else false %}
 {% set order_col = '`order`' if db_type == 'mysql' else '"order"' %}
-{# 公共字段列表（按实际库字段） #}
-{# name, type, order, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time #}
+{% set sys_menu = '`sys_menu`' if db_type == 'mysql' else '"sys_menu"' %}
+{% set icon = "menu" %}
+{% set set_uuid = "UUID()" if db_type == 'mysql' else "gen_random_uuid()" %}
+
 {% if db_type == 'mysql' %}
 -- 父菜单（类型=2：菜单）
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES (
-  '{{ function_name }}',
-  2,
-  1,
-  {{ b_true }},
-  '{{ permission_prefix }}:query',
-  NULL,
-  '{{ business_name|snake_to_camel }}',
-  '/{{ module_name }}/{{ business_name }}',
-  '{{ module_name }}/{{ business_name }}/index',
-  NULL,
-  {{ b_false }},
-  {{ b_true }},
-  {{ b_false }},
-  '{{ function_name }}',
-  NULL,
-  {{ b_false }},
-  {{ parent_menu_id }},
-  '{{ function_name }}菜单',
-  now(),
-  now()
-);
-
+INSERT INTO {{ sys_menu }}
+(`name`, `type`, {{ order_col }}, `permission`, `icon`, `route_name`, `route_path`, `component_path`, `redirect`, `hidden`, `keep_alive`, `always_show`, `title`, `params`, `affix`, `parent_id`, `uuid`, `status`, `description`, `created_time`, `updated_time`)
+VALUES 
+('{{ function_name }}', 2, 9999, '{{ permission_prefix }}:query', '{{ icon }}', '{{ business_name|snake_to_camel }}', '/{{ module_name }}/{{ business_name }}', '/{{ module_name }}/{{ business_name }}/index', NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}', NULL, {{ b_false }}, {{ parent_menu_id }}, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW());
 -- 获取父菜单ID（MySQL）
 SELECT @parentId := LAST_INSERT_ID();
 
 -- 按钮权限（类型=3：按钮/权限）
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}查询', 3, 1, {{ b_true }}, '{{ permission_prefix }}:query',   NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}查询',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}新增', 3, 2, {{ b_true }}, '{{ permission_prefix }}:create',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}新增',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}修改', 3, 3, {{ b_true }}, '{{ permission_prefix }}:update',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}修改',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}删除', 3, 4, {{ b_true }}, '{{ permission_prefix }}:delete',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}删除',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}导出', 3, 5, {{ b_true }}, '{{ permission_prefix }}:export',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导出',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}导入', 3, 6, {{ b_true }}, '{{ permission_prefix }}:import',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导入',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}批量状态修改', 3, 7, {{ b_true }}, '{{ permission_prefix }}:patch',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}批量状态修改',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}下载导入模板', 3, 8, {{ b_true }}, '{{ permission_prefix }}:download',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}下载导入模板',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
+INSERT INTO {{ sys_menu }} 
+(`name`, `type`, {{ order_col }}, `permission`, `icon`, `route_name`, `route_path`, `component_path`, `redirect`, `hidden`, `keep_alive`, `always_show`, `title`, `params`, `affix`, `parent_id`, `uuid`, `status`, `description`, `created_time`, `updated_time`)
+VALUES 
+('{{ function_name }}查询', 3, 1, '{{ permission_prefix }}:query', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}查询', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}新增', 3, 2, '{{ permission_prefix }}:create', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}新增', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}修改', 3, 3, '{{ permission_prefix }}:update', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}修改', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}删除', 3, 4, '{{ permission_prefix }}:delete', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}删除', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}导出', 3, 5, '{{ permission_prefix }}:export', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导出', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}导入', 3, 6, '{{ permission_prefix }}:import', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导入', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}批量状态修改', 3, 7, '{{ permission_prefix }}:patch', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}批量状态修改', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}下载导入模板', 3, 8, '{{ permission_prefix }}:download', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}下载导入模板', NULL, {{ b_false }}, @parentId, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW());
 
 {% elif db_type == 'postgres' %}
 -- 菜单 SQL（PostgreSQL DO 块方案） 
@@ -59,73 +35,30 @@ DO $$
 DECLARE 
   parent_id INTEGER; 
 BEGIN 
-  -- 插入父菜单并获取ID 
-  INSERT INTO public.system_menu ( 
-    name, type, {{ order_col }}, status, permission, icon, route_name, route_path, 
-    component_path, redirect, hidden, keep_alive, always_show, title, 
-    params, affix, parent_id, description, created_time, updated_time 
-  ) 
-  VALUES ( 
-    '{{ function_name }}', 
-    2, 
-    1, 
-    {{ b_true }}, 
-    '{{ permission_prefix }}:query', 
-    NULL, 
-    '{{ business_name|snake_to_camel }}', 
-    '/{{ module_name }}/{{ business_name }}', 
-    '{{ module_name }}/{{ business_name }}/index', 
-    NULL, 
-    {{ b_false }}, 
-    {{ b_true }}, 
-    {{ b_false }}, 
-    '{{ function_name }}', 
-    NULL, 
-    {{ b_false }}, 
-    {{ parent_menu_id }}, 
-    '{{ function_name }}菜单', 
-    NOW(), 
-    NOW() 
-  ) RETURNING id INTO parent_id; 
+  -- 父菜单（类型=2：菜单）
+  INSERT INTO {{ sys_menu }} 
+  (name, type, {{ order_col }}, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, uuid, status, description, created_time, updated_time ) 
+  VALUES 
+('{{ function_name }}', 2, 9999, '{{ permission_prefix }}:query', '{{ icon }}', '{{ business_name|snake_to_camel }}', '/{{ module_name }}/{{ business_name }}', '/{{ module_name }}/{{ business_name }}/index', NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}', NULL, {{ b_false }}, {{ parent_menu_id }}, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW())
+  RETURNING id INTO parent_id; 
 
-  -- 插入所有子菜单按钮（单条 INSERT 语句，性能更好） 
-  INSERT INTO public.system_menu ( 
-    name, type, {{ order_col }}, status, permission, icon, route_name, route_path, 
-    component_path, redirect, hidden, keep_alive, always_show, title, 
-    params, affix, parent_id, description, created_time, updated_time 
-  ) VALUES 
-    ('{{ function_name }}查询', 3, 1, {{ b_true }}, '{{ permission_prefix }}:query', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}查询', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()), 
-    ('{{ function_name }}新增', 3, 2, {{ b_true }}, '{{ permission_prefix }}:create', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}新增', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()), 
-    ('{{ function_name }}修改', 3, 3, {{ b_true }}, '{{ permission_prefix }}:update', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}修改', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()), 
-    ('{{ function_name }}删除', 3, 4, {{ b_true }}, '{{ permission_prefix }}:delete', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}删除', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()), 
-    ('{{ function_name }}导出', 3, 5, {{ b_true }}, '{{ permission_prefix }}:export', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导出', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()), 
-    ('{{ function_name }}导入', 3, 6, {{ b_true }}, '{{ permission_prefix }}:import', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导入', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()), 
-    ('{{ function_name }}批量状态修改', 3, 7, {{ b_true }}, '{{ permission_prefix }}:patch', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}批量状态修改', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()), 
-    ('{{ function_name }}下载导入模板', 3, 8, {{ b_true }}, '{{ permission_prefix }}:download', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}下载导入模板', NULL, {{ b_false }}, parent_id, NULL, NOW(), NOW()); 
+  -- 按钮权限（类型=3：按钮/权限）
+INSERT INTO {{ sys_menu }} 
+(name, type, {{ order_col }}, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, uuid, status, description, created_time, updated_time ) 
+VALUES 
+('{{ function_name }}查询', 3, 1, '{{ permission_prefix }}:query', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}查询', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}新增', 3, 2, '{{ permission_prefix }}:create', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}新增', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}修改', 3, 3, '{{ permission_prefix }}:update', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}修改', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}删除', 3, 4, '{{ permission_prefix }}:delete', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}删除', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}导出', 3, 5, '{{ permission_prefix }}:export', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导出', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}导入', 3, 6, '{{ permission_prefix }}:import', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导入', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}批量状态修改', 3, 7, '{{ permission_prefix }}:patch', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}批量状态修改', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW()),
+('{{ function_name }}下载导入模板', 3, 8, '{{ permission_prefix }}:download', NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}下载导入模板', NULL, {{ b_false }}, parent_id, {{ set_uuid }}, '0', '{{ function_name }}菜单', NOW(), NOW());
 
-  -- 可选：输出插入的父菜单ID（调试用） 
-  RAISE NOTICE '{{ function_name }}菜单创建完成，父菜单ID: %', parent_id; 
+-- 可选：输出插入的父菜单ID（调试用） 
+RAISE NOTICE '{{ function_name }}菜单创建完成，父菜单ID: %', parent_id; 
 END $$;
 
 {% else %}
--- 未识别的数据库类型，默认按 MySQL 处理
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}', 2, 1, {{ b_true }}, '{{ permission_prefix }}:query', NULL, '{{ business_name|snake_to_camel }}', '/{{ module_name }}/{{ business_name }}', '{{ module_name }}/{{ business_name }}/index', NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}', NULL, {{ b_false }}, {{ parent_menu_id }}, '{{ function_name }}菜单', now(), now());
-SELECT @parentId := LAST_INSERT_ID();
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}查询', 3, 1, {{ b_true }}, '{{ permission_prefix }}:query',   NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}查询',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}新增', 3, 2, {{ b_true }}, '{{ permission_prefix }}:create',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}新增',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}修改', 3, 3, {{ b_true }}, '{{ permission_prefix }}:update',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}修改',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}删除', 3, 4, {{ b_true }}, '{{ permission_prefix }}:delete',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}删除',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}导出', 3, 5, {{ b_true }}, '{{ permission_prefix }}:export',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导出',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}导入', 3, 6, {{ b_true }}, '{{ permission_prefix }}:import',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}导入',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}批量状态修改', 3, 7, {{ b_true }}, '{{ permission_prefix }}:patch',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}批量状态修改',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
-INSERT INTO `system_menu` (name, type, {{ order_col }}, status, permission, icon, route_name, route_path, component_path, redirect, hidden, keep_alive, always_show, title, params, affix, parent_id, description, created_time, updated_time)
-VALUES ('{{ function_name }}下载导入模板', 3, 8, {{ b_true }}, '{{ permission_prefix }}:download',  NULL, NULL, NULL, NULL, NULL, {{ b_false }}, {{ b_true }}, {{ b_false }}, '{{ function_name }}下载导入模板',   NULL, {{ b_false }}, @parentId, NULL, NOW(), NOW());
+生成菜单 SQL 语句错误：{{ db_type }} 数据库不支持，请使用 mysql 或 postgres 数据库。
 {% endif %}

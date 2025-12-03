@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import io
-from typing import Any
 from fastapi import UploadFile
 import pandas as pd
 
@@ -197,7 +196,7 @@ class {{ class_name }}Service:
         except Exception as e:
             log.error(f"批量导入失败: {str(e)}")
             raise CustomException(msg=f"导入失败: {str(e)}")
-
+    
     @classmethod
     async def import_template_download_{{ business_name }}_service(cls) -> bytes:
         """下载导入模板"""

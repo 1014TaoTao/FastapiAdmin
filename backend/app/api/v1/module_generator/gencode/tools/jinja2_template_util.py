@@ -23,7 +23,7 @@ class Jinja2TemplateUtil:
     FRONTEND_PROJECT_PATH = 'frontend'
     BACKEND_PROJECT_PATH = 'backend'
     # 默认上级菜单，系统工具
-    DEFAULT_PARENT_MENU_ID = "3"
+    DEFAULT_PARENT_MENU_ID = 7
     
     # 环境对象
     _env = None
@@ -53,7 +53,7 @@ class Jinja2TemplateUtil:
                     {
                         'camel_to_snake': SnakeCaseUtil.camel_to_snake,
                         'snake_to_camel': CamelCaseUtil.snake_to_camel,
-                        'get_sqlalchemy_type': cls.get_sqlalchemy_type,
+                        'get_sqlalchemy_type': cls.get_sqlalchemy_type
                     }
                 )
             return cls._env
