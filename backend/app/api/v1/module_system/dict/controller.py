@@ -5,7 +5,6 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from redis.asyncio.client import Redis
 
 from app.common.response import StreamResponse, SuccessResponse
-from app.common.request import PaginationService
 from app.core.base_params import PaginationQueryParam
 from app.core.base_schema import BatchSetAvailable
 from app.core.dependencies import AuthPermission, redis_getter
@@ -49,14 +48,14 @@ async def get_type_detail_controller(
     log.info(f"获取字典类型详情成功 {id}")
     return SuccessResponse(data=result_dict, msg="获取字典类型详情成功")
 
-@DictRouter.get("/type/list", summary="查询字典类型", description="查询字典类型")
-async def get_type_list_controller(
+@DictRouter.get("/type/page", summary="分页查询字典类型", description="分页查询字典类型")
+async def get_type_page_controller(
     page: PaginationQueryParam = Depends(),
     search: DictTypeQueryParam = Depends(),
     auth: AuthSchema = Depends(AuthPermission(["module_system:dict_type:query"]))
 ) -> JSONResponse:
     """
-    查询字典类型
+    分页查询字典类型
 
     参数:
     - page (PaginationQueryParam): 分页参数模型
@@ -69,8 +68,7 @@ async def get_type_list_controller(
     异常:
     - CustomException: 查询字典类型失败时抛出异常。
     """
-    result_dict_list = await DictTypeService.get_obj_list_service(auth=auth, search=search, order_by=page.order_by)
-    result_dict = await PaginationService.paginate(data_list= result_dict_list, page_no= page.page_no, page_size = page.page_size)
+    result_dict = await DictTypeService.get_obj_page_service(auth=auth, search=search, page=page)
     log.info(f"查询字典类型列表成功")
     return SuccessResponse(data=result_dict, msg="查询字典类型列表成功")
 
@@ -243,14 +241,14 @@ async def get_data_detail_controller(
     log.info(f"获取字典数据详情成功 {id}")
     return SuccessResponse(data=result_dict, msg="获取字典数据详情成功")
 
-@DictRouter.get("/data/list", summary="查询字典数据", description="查询字典数据")
-async def get_data_list_controller(
+@DictRouter.get("/data/page", summary="分页查询字典数据", description="分页查询字典数据")
+async def get_data_page_controller(
     page: PaginationQueryParam = Depends(),
     search: DictDataQueryParam = Depends(),
     auth: AuthSchema = Depends(AuthPermission(["module_system:dict_data:query"]))
 ) -> JSONResponse:
     """
-    查询字典数据
+    分页查询字典数据
 
     参数:
     - page (PaginationQueryParam): 分页查询参数模型
@@ -266,8 +264,7 @@ async def get_data_list_controller(
     order_by = [{"order": "asc"}]
     if page.order_by:
         order_by = page.order_by
-    result_dict_list = await DictDataService.get_obj_list_service(auth=auth, search=search, order_by=order_by)
-    result_dict = await PaginationService.paginate(data_list= result_dict_list, page_no= page.page_no, page_size = page.page_size)
+    result_dict = await DictDataService.get_obj_page_service(auth=auth, search=search, page=page)
     log.info(f"查询字典数据列表成功")
     return SuccessResponse(data=result_dict, msg="查询字典数据列表成功")
 

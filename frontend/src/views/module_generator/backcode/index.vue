@@ -1366,7 +1366,7 @@ async function handlePreviewTable(row?: GenTableSchema): Promise<void> {
     const menu_response = await MenuAPI.listMenu();
     menuOptions.value = formatTree(filterMenuTypes(menu_response.data.data));
 
-    const dict_response = await DictAPI.listDictType({ page_no: 1, page_size: 100 });
+    const dict_response = await DictAPI.pageDictType({ page_no: 1, page_size: 100 });
     dictOptions.value = dict_response.data.data.items;
   } else {
     ElMessage.error("请选择要修改的数据");

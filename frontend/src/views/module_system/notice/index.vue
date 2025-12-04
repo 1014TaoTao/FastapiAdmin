@@ -3,38 +3,18 @@
   <div class="app-container">
     <!-- 搜索区域 -->
     <div class="search-container">
-      <el-form
-        ref="queryFormRef"
-        :model="queryFormData"
-        :inline="true"
-        label-suffix=":"
-        @submit.prevent="handleQuery"
-      >
+      <el-form ref="queryFormRef" :model="queryFormData" :inline="true" label-suffix=":" @submit.prevent="handleQuery">
         <el-form-item prop="notice_title" label="标题">
           <el-input v-model="queryFormData.notice_title" placeholder="请输入标题" clearable />
         </el-form-item>
         <el-form-item prop="notice_type" label="类型">
-          <el-select
-            v-model="queryFormData.notice_type"
-            placeholder="请选择类型"
-            style="width: 167.5px"
-            clearable
-          >
-            <el-option
-              v-for="item in dictStore.getDictArray('sys_notice_type')"
-              :key="item.dict_value"
-              :value="item.dict_value"
-              :label="item.dict_label"
-            />
+          <el-select v-model="queryFormData.notice_type" placeholder="请选择类型" style="width: 167.5px" clearable>
+            <el-option v-for="item in dictStore.getDictArray('sys_notice_type')" :key="item.dict_value"
+              :value="item.dict_value" :label="item.dict_label" />
           </el-select>
         </el-form-item>
         <el-form-item prop="status" label="状态">
-          <el-select
-            v-model="queryFormData.status"
-            placeholder="请选择状态"
-            style="width: 167.5px"
-            clearable
-          >
+          <el-select v-model="queryFormData.status" placeholder="请选择状态" style="width: 167.5px" clearable>
             <el-option value="0" label="启用" />
             <el-option value="1" label="停用" />
           </el-select>
@@ -44,27 +24,15 @@
           <DatePicker v-model="dateRange" @update:model-value="handleDateRangeChange" />
         </el-form-item>
         <el-form-item v-if="isExpand" prop="created_id" label="创建人">
-          <UserTableSelect
-            v-model="queryFormData.created_id"
-            @confirm-click="handleConfirm"
-            @clear-click="handleQuery"
-          />
+          <UserTableSelect v-model="queryFormData.created_id" @confirm-click="handleConfirm"
+            @clear-click="handleQuery" />
         </el-form-item>
         <!-- 查询、重置、展开/收起按钮 -->
         <el-form-item class="search-buttons">
-          <el-button
-            v-hasPerm="['module_system:notice:query']"
-            type="primary"
-            icon="search"
-            native-type="submit"
-          >
+          <el-button v-hasPerm="['module_system:notice:query']" type="primary" icon="search" native-type="submit">
             查询
           </el-button>
-          <el-button
-            v-hasPerm="['module_system:notice:query']"
-            icon="refresh"
-            @click="handleResetQuery"
-          >
+          <el-button v-hasPerm="['module_system:notice:query']" icon="refresh" @click="handleResetQuery">
             重置
           </el-button>
           <!-- 展开/收起 -->
@@ -103,23 +71,14 @@
         <div class="data-table__toolbar--left">
           <el-row :gutter="10">
             <el-col :span="1.5">
-              <el-button
-                v-hasPerm="['module_system:notice:create']"
-                type="success"
-                icon="plus"
-                @click="handleOpenDialog('create')"
-              >
+              <el-button v-hasPerm="['module_system:notice:create']" type="success" icon="plus"
+                @click="handleOpenDialog('create')">
                 新增
               </el-button>
             </el-col>
             <el-col :span="1.5">
-              <el-button
-                v-hasPerm="['module_system:notice:delete']"
-                type="danger"
-                icon="delete"
-                :disabled="selectIds.length === 0"
-                @click="handleDelete(selectIds)"
-              >
+              <el-button v-hasPerm="['module_system:notice:delete']" type="danger" icon="delete"
+                :disabled="selectIds.length === 0" @click="handleDelete(selectIds)">
                 批量删除
               </el-button>
             </el-col>
@@ -146,24 +105,14 @@
           <el-row :gutter="10">
             <el-col :span="1.5">
               <el-tooltip content="导出">
-                <el-button
-                  v-hasPerm="['module_system:notice:export']"
-                  type="warning"
-                  icon="download"
-                  circle
-                  @click="handleOpenExportsModal"
-                />
+                <el-button v-hasPerm="['module_system:notice:export']" type="warning" icon="download" circle
+                  @click="handleOpenExportsModal" />
               </el-tooltip>
             </el-col>
             <el-col :span="1.5">
               <el-tooltip content="刷新">
-                <el-button
-                  v-hasPerm="['module_system:notice:query']"
-                  type="primary"
-                  icon="refresh"
-                  circle
-                  @click="handleRefresh"
-                />
+                <el-button v-hasPerm="['module_system:notice:query']" type="primary" icon="refresh" circle
+                  @click="handleRefresh" />
               </el-tooltip>
             </el-col>
             <el-col :span="1.5">
@@ -183,61 +132,30 @@
       </div>
 
       <!-- 表格区域：系统配置列表 -->
-      <el-table
-        ref="dataTableRef"
-        v-loading="loading"
-        :data="pageTableData"
-        highlight-current-row
-        class="data-table__content"
-        :height="450"
-        border
-        stripe
-        @selection-change="handleSelectionChange"
-      >
+      <el-table ref="dataTableRef" v-loading="loading" :data="pageTableData" highlight-current-row
+        class="data-table__content" :height="450" border stripe @selection-change="handleSelectionChange">
         <template #empty>
           <el-empty :image-size="80" description="暂无数据" />
         </template>
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'selection')?.show"
-          type="selection"
-          min-width="55"
-          align="center"
-        />
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'index')?.show"
-          fixed
-          label="序号"
-          min-width="60"
-        >
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'selection')?.show" type="selection"
+          min-width="55" align="center" />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'index')?.show" fixed label="序号" min-width="60">
           <template #default="scope">
             {{ (queryFormData.page_no - 1) * queryFormData.page_size + scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'notice_title')?.show"
-          label="通知标题"
-          prop="notice_title"
-          min-width="140"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'status')?.show"
-          label="状态"
-          prop="status"
-          min-width="80"
-        >
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'notice_title')?.show" label="通知标题"
+          prop="notice_title" min-width="140" show-overflow-tooltip />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'status')?.show" label="状态" prop="status"
+          min-width="80">
           <template #default="scope">
             <el-tag :type="scope.row.status === '0' ? 'success' : 'danger'">
               {{ scope.row.status === "0" ? "启用" : "停用" }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'notice_type')?.show"
-          label="类型"
-          prop="notice_type"
-          min-width="80"
-        >
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'notice_type')?.show" label="类型"
+          prop="notice_type" min-width="80">
           <template #default="scope">
             <el-tag :type="scope.row.notice_type === '1' ? 'primary' : 'warning'">
               {{
@@ -249,91 +167,40 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'notice_content')?.show"
-          label="内容"
-          prop="notice_content"
-          min-width="200"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'description')?.show"
-          label="描述"
-          prop="description"
-          min-width="140"
-          show-overflow-tooltip
-        />
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'created_time')?.show"
-          label="创建时间"
-          prop="created_time"
-          min-width="180"
-          sortable
-        />
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'updated_time')?.show"
-          label="更新时间"
-          prop="updated_time"
-          min-width="180"
-          sortable
-        />
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'created_id')?.show"
-          key="created_id"
-          label="创建人"
-          min-width="100"
-        >
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'notice_content')?.show" label="内容"
+          prop="notice_content" min-width="200" show-overflow-tooltip />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'description')?.show" label="描述"
+          prop="description" min-width="140" show-overflow-tooltip />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'created_time')?.show" label="创建时间"
+          prop="created_time" min-width="180" sortable />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'updated_time')?.show" label="更新时间"
+          prop="updated_time" min-width="180" sortable />
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'created_id')?.show" key="created_id" label="创建人"
+          min-width="100">
           <template #default="scope">
             {{ scope.row.created_by?.name }}
           </template>
         </el-table-column>
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'updated_id')?.show"
-          key="updated_id"
-          label="更新人"
-          min-width="100"
-        >
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'updated_id')?.show" key="updated_id" label="更新人"
+          min-width="100">
           <template #default="scope">
             {{ scope.row.updated_by?.name }}
           </template>
         </el-table-column>
 
-        <el-table-column
-          v-if="tableColumns.find((col) => col.prop === 'operation')?.show"
-          fixed="right"
-          label="操作"
-          align="center"
-          min-width="200"
-        >
+        <el-table-column v-if="tableColumns.find((col) => col.prop === 'operation')?.show" fixed="right" label="操作"
+          align="center" min-width="200">
           <template #default="scope">
-            <el-button
-              v-hasPerm="['module_system:notice:query']"
-              type="info"
-              size="small"
-              link
-              icon="document"
-              @click="handleOpenDialog('detail', scope.row.id)"
-            >
+            <el-button v-hasPerm="['module_system:notice:query']" type="info" size="small" link icon="document"
+              @click="handleOpenDialog('detail', scope.row.id)">
               详情
             </el-button>
-            <el-button
-              v-hasPerm="['module_system:notice:update']"
-              type="primary"
-              size="small"
-              link
-              icon="edit"
-              @click="handleOpenDialog('update', scope.row.id)"
-            >
+            <el-button v-hasPerm="['module_system:notice:update']" type="primary" size="small" link icon="edit"
+              @click="handleOpenDialog('update', scope.row.id)">
               编辑
             </el-button>
-            <el-button
-              v-hasPerm="['module_system:notice:delete']"
-              type="danger"
-              size="small"
-              link
-              icon="delete"
-              @click="handleDelete([scope.row.id])"
-            >
+            <el-button v-hasPerm="['module_system:notice:delete']" type="danger" size="small" link icon="delete"
+              @click="handleDelete([scope.row.id])">
               删除
             </el-button>
           </template>
@@ -342,21 +209,13 @@
 
       <!-- 分页区域 -->
       <template #footer>
-        <pagination
-          v-model:total="total"
-          v-model:page="queryFormData.page_no"
-          v-model:limit="queryFormData.page_size"
-          @pagination="loadingData"
-        />
+        <pagination v-model:total="total" v-model:page="queryFormData.page_no" v-model:limit="queryFormData.page_size"
+          @pagination="loadingData" />
       </template>
     </el-card>
 
     <!-- 弹窗区域 -->
-    <el-dialog
-      v-model="dialogVisible.visible"
-      :title="dialogVisible.title"
-      @close="handleCloseDialog"
-    >
+    <el-dialog v-model="dialogVisible.visible" :title="dialogVisible.title" @close="handleCloseDialog">
       <!-- 详情 -->
       <template v-if="dialogVisible.type === 'detail'">
         <el-descriptions :column="4" border label-width="120px">
@@ -400,36 +259,19 @@
       </template>
       <!-- 新增、编辑表单 -->
       <template v-else>
-        <el-form
-          ref="dataFormRef"
-          :model="formData"
-          :rules="rules"
-          label-suffix=":"
-          label-width="auto"
-          label-position="right"
-          :inline="true"
-        >
+        <el-form ref="dataFormRef" :model="formData" :rules="rules" label-suffix=":" label-width="auto"
+          label-position="right" :inline="true">
           <el-form-item label="标题" prop="notice_title">
             <el-input v-model="formData.notice_title" placeholder="请输入标题" :maxlength="50" />
           </el-form-item>
           <el-form-item label="描述" prop="description">
-            <el-input
-              v-model="formData.description"
-              :rows="1"
-              :maxlength="100"
-              show-word-limit
-              type="textarea"
-              placeholder="请输入描述"
-            />
+            <el-input v-model="formData.description" :rows="1" :maxlength="100" show-word-limit type="textarea"
+              placeholder="请输入描述" />
           </el-form-item>
           <el-form-item label="类型" prop="notice_type" class="w-50">
             <el-select v-model="formData.notice_type" placeholder="请选择类型" clearable>
-              <el-option
-                v-for="item in dictStore.getDictArray('sys_notice_type')"
-                :key="item.dict_value"
-                :value="item.dict_value"
-                :label="item.dict_label"
-              />
+              <el-option v-for="item in dictStore.getDictArray('sys_notice_type')" :key="item.dict_value"
+                :value="item.dict_value" :label="item.dict_label" />
             </el-select>
           </el-form-item>
           <el-form-item label="状态" prop="status">
@@ -456,11 +298,8 @@
       </template>
     </el-dialog>
 
-    <ExportModal
-      v-model="exportsDialogVisible"
-      :content-config="curdContentConfig"
-      :selection-data="selectionRows"
-    />
+    <ExportModal v-model="exportsDialogVisible" :content-config="curdContentConfig" :selection-data="selectionRows"
+      :query-params="queryFormData" :page-data="pageTableData" />
   </div>
 </template>
 
@@ -571,7 +410,7 @@ async function handleRefresh() {
 async function loadingData() {
   loading.value = true;
   try {
-    const response = await NoticeAPI.listNotice(queryFormData);
+    const response = await NoticeAPI.pageNotice(queryFormData);
     pageTableData.value = response.data.data.items;
     total.value = response.data.data.total;
   } catch (error: any) {
@@ -763,10 +602,10 @@ const curdContentConfig = {
     if (typeof query.status === "string") query.status = query.status === "true";
     // notice_type 为字符串，无需转换；如果后端需要数字，可在此转换
     query.page_no = 1;
-    query.page_size = 1000;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
-      const res = await NoticeAPI.listNotice(query);
+      const res = await NoticeAPI.pageNotice(query);
       const items = res.data?.data?.items || [];
       const total = res.data?.data?.total || 0;
       all.push(...items);

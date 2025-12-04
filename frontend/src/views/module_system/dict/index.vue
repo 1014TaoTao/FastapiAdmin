@@ -520,7 +520,7 @@ const currentDictTypeId = ref(1);
 async function loadingData() {
   loading.value = true;
   try {
-    const response = await DictAPI.listDictType(queryFormData);
+    const response = await DictAPI.pageDictType(queryFormData);
     pageTableData.value = response.data.data.items;
     total.value = response.data.data.total;
   } catch (error: any) {
@@ -709,10 +709,10 @@ const curdContentConfig = {
     const query: any = { ...params };
     if (typeof query.status === "string") query.status = query.status === "true";
     query.page_no = 1;
-    query.page_size = 1000;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
-      const res = await DictAPI.listDictType(query);
+      const res = await DictAPI.pageDictType(query);
       const items = res.data?.data?.items || [];
       const total = res.data?.data?.total || 0;
       all.push(...items);

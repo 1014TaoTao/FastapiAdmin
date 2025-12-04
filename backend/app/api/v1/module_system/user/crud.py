@@ -4,9 +4,10 @@ from typing import Sequence, Any
 from datetime import datetime
 
 from app.core.base_crud import CRUDBase
+from app.core.base_params import PaginationQueryParam
 from app.api.v1.module_system.auth.schema import AuthSchema
 from .model import UserModel
-from .schema import UserCreateSchema, UserForgetPasswordSchema, UserUpdateSchema
+from .schema import UserCreateSchema, UserForgetPasswordSchema, UserUpdateSchema, UserOutSchema
 from ..role.crud import RoleCRUD
 from ..position.crud import PositionCRUD
 
@@ -88,6 +89,25 @@ class UserCRUD(CRUDBase[UserModel, UserCreateSchema, UserUpdateSchema]):
             search=search,
             order_by=order_by,
             preload=preload,
+        )
+    
+    async def get_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list[str | Any] | None = None) -> dict:
+        """
+        分页获取用户列表
+        
+        参数:
+        - page (PaginationQueryParam): 分页参数
+        - search (dict | None): 查询参数对象。
+        - preload (list[str | Any] | None): 预加载关系，未提供时使用模型默认项
+        
+        返回:
+        - dict: 分页数据
+        """
+        return await self.page(
+            page=page,
+            search=search or {},
+            out_schema=UserOutSchema,
+            preload=preload
         )
 
     async def update_last_login_crud(self, id: int) -> UserModel | None:

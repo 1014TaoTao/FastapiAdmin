@@ -585,7 +585,7 @@ const rules = reactive({
 async function loadingData() {
   loading.value = true;
   try {
-    const response = await RoleAPI.listRole(queryFormData);
+    const response = await RoleAPI.pageRole(queryFormData);
     pageTableData.value = response.data.data.items;
     total.value = response.data.data.total;
   } catch (error: any) {
@@ -801,10 +801,10 @@ const curdContentConfig = {
       query.status = query.status === "true";
     }
     query.page_no = 1;
-    query.page_size = 1000;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
-      const res = await RoleAPI.listRole(query);
+      const res = await RoleAPI.pageRole(query);
       const items = res.data?.data?.items || [];
       const total = res.data?.data?.total || 0;
       all.push(...items);

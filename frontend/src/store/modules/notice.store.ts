@@ -11,7 +11,7 @@ export const useNoticeStore = defineStore("notice", {
   }),
   actions: {
     async getNotice() {
-      const response = await NoticeAPI.listNoticeAvailable();
+      const response = await NoticeAPI.pageNoticeAvailable();
       const items = response.data.data.items || [];
       // 过滤掉已读的通知
       const readSet = new Set(this.readIds);

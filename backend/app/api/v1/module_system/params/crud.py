@@ -3,10 +3,11 @@
 from typing import Sequence
 
 from app.core.base_crud import CRUDBase
+from app.core.base_params import PaginationQueryParam
 
 from ..auth.schema import AuthSchema
 from .model import ParamsModel
-from .schema import ParamsCreateSchema, ParamsUpdateSchema
+from .schema import ParamsCreateSchema, ParamsUpdateSchema, ParamsOutSchema
 
 
 class ParamsCRUD(CRUDBase[ParamsModel, ParamsCreateSchema, ParamsUpdateSchema]):
@@ -61,6 +62,24 @@ class ParamsCRUD(CRUDBase[ParamsModel, ParamsCreateSchema, ParamsUpdateSchema]):
         - Sequence[ParamsModel]: 配置管理型模型实例列表
         """
         return await self.list(search=search, order_by=order_by, preload=preload)
+    
+    async def get_page_obj_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list | None = None) -> dict:
+        """
+        分页查询配置管理型列表
+        
+        参数:
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (dict | None): 查询参数对象。
+        
+        返回:
+        - dict: 分页数据
+        """
+        return await self.page(
+            page=page,
+            search=search or {},
+            out_schema=ParamsOutSchema,
+            preload=preload
+        )
     
     async def create_obj_crud(self, data: ParamsCreateSchema) -> ParamsModel | None:
         """

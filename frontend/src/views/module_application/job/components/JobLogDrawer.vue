@@ -490,7 +490,7 @@ const curdContentConfig = {
   exportsAction: async (params: any) => {
     const query: any = { ...params };
     query.page_no = 1;
-    query.page_size = 1000;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
       const res = await JobAPI.pageJobLog(query);

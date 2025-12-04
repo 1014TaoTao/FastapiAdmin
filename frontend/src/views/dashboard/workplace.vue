@@ -309,7 +309,7 @@ const getNoticeTypeColor = (type: string | undefined) => {
 // 获取通知公告列表
 const listNotice = async () => {
   try {
-    const response = await NoticeAPI.listNotice({
+    const response = await NoticeAPI.pageNotice({
       page_no: 1,
       page_size: 10,
       status: "0", // 只获取启用的公告

@@ -982,7 +982,7 @@ const curdContentConfig = {
     const query: any = { ...params };
     if (typeof query.status === "string") query.status = query.status === "true";
     query.page_no = 1;
-    query.page_size = 1000;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
       const res = await JobAPI.pageJob(query);

@@ -146,7 +146,7 @@ class GenTableCRUD(CRUDBase[GenTableModel, GenTableSchema, GenTableSchema]):
         """
         return await self.list(search=search.__dict__, order_by=[{"created_time": "desc"}], preload=preload)
     
-    async def gen_table_page_crud(self, search: dict | None = None, page: PaginationQueryParam | None = None, preload: list | None = None) -> dict:
+    async def gen_table_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list | None = None) -> dict:
         """
         分页查询代码生成业务表列表信息。
 
@@ -250,15 +250,20 @@ class GenTableCRUD(CRUDBase[GenTableModel, GenTableSchema, GenTableSchema]):
             # 添加分页
             offset = (page.page_no - 1) * page.page_size
             limit = page.page_size
+            has_next = False
 
-            query_sql = query_sql.limit(page.page_size).offset(offset)
+            # page_size = -1 表示不分页，获取所有数据
+            if page.page_size > 0:
+                query_sql = query_sql.limit(page.page_size).offset(offset)
+                has_next = offset + limit < total
+                
             result = await self.auth.db.execute(query_sql, params)
             rows = result.mappings().all()
             return {
                     "page_no": page.page_no,
                     "page_size": page.page_size,
                     "total": total,
-                    "has_next": offset + limit < total,
+                    "has_next": has_next,
                     "items": [GenDBTableSchema.model_validate(obj).model_dump() for obj in rows]
                 }
         except Exception as e:

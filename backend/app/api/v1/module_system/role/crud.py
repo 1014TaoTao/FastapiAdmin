@@ -3,9 +3,10 @@
 from typing import Sequence
 
 from app.core.base_crud import CRUDBase
+from app.core.base_params import PaginationQueryParam
 
 from .model import RoleModel
-from .schema import RoleCreateSchema, RoleUpdateSchema
+from .schema import RoleCreateSchema, RoleUpdateSchema, RoleOutSchema
 from ..auth.schema import AuthSchema
 from ..menu.crud import MenuCRUD
 from ..dept.crud import DeptCRUD
@@ -50,6 +51,20 @@ class RoleCRUD(CRUDBase[RoleModel, RoleCreateSchema, RoleUpdateSchema]):
         - Sequence[RoleModel]: 角色模型对象列表
         """
         return await self.list(search=search, order_by=order_by, preload=preload)
+    
+    async def get_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list | None = None) -> dict:   
+        """
+        分页获取角色列表
+        
+        参数:
+        - page (PaginationQueryParam): 分页参数
+        - search (dict | None): 查询参数
+        - preload (list | None): 预加载选项
+        
+        返回:
+        - dict: 分页结果字典
+        """
+        return await self.page(page=page, search=search, out_schema=RoleOutSchema, preload=preload)
 
     async def set_role_menus_crud(self, role_ids: list[int], menu_ids: list[int]) -> None:
         """

@@ -7,6 +7,7 @@ from app.common.enums import RedisInitKeyConfig
 from app.utils.excel_util import ExcelUtil
 from app.core.database import async_db_session
 from app.core.base_schema import BatchSetAvailable
+from app.core.base_params import PaginationQueryParam
 from app.core.redis_crud import RedisCURD
 from app.core.exceptions import CustomException
 from app.core.logger import log
@@ -59,6 +60,24 @@ class DictTypeService:
         """
         obj_list = await DictTypeCRUD(auth).get_obj_list_crud(search=search.__dict__, order_by=order_by)
         return [DictTypeOutSchema.model_validate(obj).model_dump() for obj in obj_list]
+    
+    @classmethod
+    async def get_obj_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: DictTypeQueryParam | None = None) -> dict:
+        """
+        分页获取数据字典类型列表
+        
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (DictTypeQueryParam | None): 搜索条件模型
+        
+        返回:
+        - dict: 包含分页数据的字典
+        """
+        return await DictTypeCRUD(auth).get_obj_page_crud(
+            search=search.__dict__ if search else None,
+            page=page
+        )
     
     @classmethod
     async def create_obj_service(cls, auth: AuthSchema, redis: Redis, data: DictTypeCreateSchema) -> dict:
@@ -276,6 +295,24 @@ class DictDataService:
         """
         obj_list = await DictDataCRUD(auth).get_obj_list_crud(search=search.__dict__, order_by=order_by)
         return [DictDataOutSchema.model_validate(obj).model_dump() for obj in obj_list]
+    
+    @classmethod
+    async def get_obj_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: DictDataQueryParam | None = None) -> dict:
+        """
+        分页获取数据字典数据列表
+        
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (DictDataQueryParam | None): 搜索条件模型
+        
+        返回:
+        - dict: 包含分页数据的字典
+        """
+        return await DictDataCRUD(auth).get_obj_page_crud(
+            search=search.__dict__ if search else None,
+            page=page
+        )
 
     @classmethod
     async def init_dict_service(cls, redis: Redis):

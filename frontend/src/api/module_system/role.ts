@@ -3,9 +3,9 @@ import request from "@/utils/request";
 const API_PATH = "/system/role";
 
 const RoleAPI = {
-  listRole(query?: TablePageQuery) {
+  pageRole(query?: TablePageQuery) {
     return request<ApiResponse<PageResult<RoleTable[]>>>({
-      url: `${API_PATH}/list`,
+      url: `${API_PATH}/page`,
       method: "get",
       params: query,
     });

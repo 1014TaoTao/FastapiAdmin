@@ -60,9 +60,9 @@ export const UserAPI = {
     });
   },
 
-  listUser(query: UserPageQuery) {
+  pageUser(query: UserPageQuery) {
     return request<ApiResponse<PageResult<UserInfo[]>>>({
-      url: `${API_PATH}/list`,
+      url: `${API_PATH}/page`,
       method: "get",
       params: query,
     });

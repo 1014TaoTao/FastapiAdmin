@@ -3,8 +3,9 @@
 from typing import Sequence
 
 from app.core.base_crud import CRUDBase
+from app.core.base_params import PaginationQueryParam
 from app.api.v1.module_system.dict.model import DictDataModel, DictTypeModel
-from app.api.v1.module_system.dict.schema import DictDataCreateSchema, DictDataUpdateSchema, DictTypeCreateSchema, DictTypeUpdateSchema
+from app.api.v1.module_system.dict.schema import DictDataCreateSchema, DictTypeOutSchema, DictDataUpdateSchema, DictTypeCreateSchema, DictTypeUpdateSchema, DictDataOutSchema
 from app.api.v1.module_system.auth.schema import AuthSchema
 
 
@@ -53,6 +54,20 @@ class DictTypeCRUD(CRUDBase[DictTypeModel, DictTypeCreateSchema, DictTypeUpdateS
         if preload is None:
             preload = []
         return await self.list(search=search, order_by=order_by, preload=preload)
+    
+    async def get_obj_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list | None = None) -> dict:
+        """
+        获取数据字典类型分页数据
+        
+        参数:
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (dict | None): 查询参数,默认值为None
+        - preload (list | None): 预加载关系，未提供时使用模型默认项
+        
+        返回:
+        - dict: 分页数据
+        """
+        return await self.page(page=page, search=search, out_schema=DictTypeOutSchema, preload=preload)
     
     async def create_obj_crud(self, data: DictTypeCreateSchema) -> DictTypeModel | None:
         """
@@ -163,6 +178,20 @@ class DictDataCRUD(CRUDBase[DictDataModel, DictDataCreateSchema, DictDataUpdateS
         if preload is None:
             preload = []
         return await self.list(search=search, order_by=order_by, preload=preload)
+    
+    async def get_obj_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list | None = None) -> dict:
+        """
+        获取数据字典数据分页数据
+        
+        参数:
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (dict | None): 查询参数,默认值为None
+        - preload (list | None): 预加载关系，未提供时使用模型默认项
+        
+        返回:
+        - dict: 分页数据
+        """
+        return await self.page(page=page, search=search, out_schema=DictDataOutSchema, preload=preload)
     
     async def create_obj_crud(self, data: DictDataCreateSchema) -> DictDataModel | None:
         """

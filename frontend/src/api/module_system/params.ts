@@ -19,9 +19,9 @@ const ParamsAPI = {
     });
   },
 
-  listParams(query: ConfigPageQuery) {
+  pageParams(query: ConfigPageQuery) {
     return request<ApiResponse<PageResult<ConfigTable[]>>>({
-      url: `${API_PATH}/list`,
+      url: `${API_PATH}/page`,
       method: "get",
       params: query,
     });

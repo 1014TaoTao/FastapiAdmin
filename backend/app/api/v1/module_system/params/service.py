@@ -7,6 +7,7 @@ from redis.asyncio.client import Redis
 
 from app.common.enums import RedisInitKeyConfig
 from app.core.database import async_db_session
+from app.core.base_params import PaginationQueryParam
 from app.core.redis_crud import RedisCURD
 from app.utils.excel_util import ExcelUtil
 from app.utils.upload_util import UploadUtil
@@ -91,6 +92,21 @@ class ParamsService:
         else:
             obj_list = await ParamsCRUD(auth).get_obj_list_crud()
         return [ParamsOutSchema.model_validate(obj).model_dump() for obj in obj_list]
+    
+    @classmethod
+    async def get_obj_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: ParamsQueryParam | None = None) -> dict:
+        """
+        分页获取配置管理型列表
+        
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (ParamsQueryParam | None): 查询参数对象
+        
+        返回:
+        - dict: 包含分页结果的字典
+        """
+        return await ParamsCRUD(auth).get_page_obj_crud(page=page, search=search.__dict__ if search else None)
     
     @classmethod
     async def create_obj_service(cls, auth: AuthSchema, redis: Redis, data: ParamsCreateSchema) -> dict:

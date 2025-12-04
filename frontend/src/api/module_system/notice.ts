@@ -3,15 +3,15 @@ import request from "@/utils/request";
 const API_PATH = "/system/notice";
 
 const NoticeAPI = {
-  listNotice(query: NoticePageQuery) {
+  pageNotice(query: NoticePageQuery) {
     return request<ApiResponse<PageResult<NoticeTable[]>>>({
-      url: `${API_PATH}/list`,
+      url: `${API_PATH}/page`,
       method: "get",
       params: query,
     });
   },
 
-  listNoticeAvailable() {
+  pageNoticeAvailable() {
     return request<ApiResponse<PageResult<NoticeTable[]>>>({
       url: `${API_PATH}/available`,
       method: "get",

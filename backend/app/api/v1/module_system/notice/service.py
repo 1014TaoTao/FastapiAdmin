@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from app.core.base_schema import BatchSetAvailable
+from app.core.base_params import PaginationQueryParam
 from app.core.exceptions import CustomException
 from app.utils.excel_util import ExcelUtil
 
@@ -30,7 +31,7 @@ class NoticeService:
         return NoticeOutSchema.model_validate(notice_obj).model_dump()
         
     @classmethod
-    async def get_notice_list_available_service(cls, auth: AuthSchema) -> list[dict]:
+    async def get_notice_page_available_service(cls, auth: AuthSchema, page: PaginationQueryParam) -> dict:
         """
         获取可用的公告列表。
         
@@ -40,8 +41,23 @@ class NoticeService:
         返回:
         - list[dict]: 可用公告详情字典列表。
         """
-        notice_obj_list = await NoticeCRUD(auth).get_list_crud(search={'status': '0',})
-        return [NoticeOutSchema.model_validate(notice_obj).model_dump() for notice_obj in notice_obj_list]
+        return await NoticeCRUD(auth).get_page_crud(page=page, search={'status': '0',})
+    
+    @classmethod
+    async def get_notice_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: NoticeQueryParam | None = None) -> dict:
+        """
+        分页查询公告。
+        
+        参数:
+        - auth (AuthSchema): 认证信息模型。
+        - search (NoticeQueryParam | None): 查询参数模型。
+        - page (dict): 分页查询参数模型。
+        
+        返回:
+        - dict: 分页公告详情字典。
+        """
+        search_dict = search.__dict__ if search else None
+        return await NoticeCRUD(auth).get_page_crud(page=page, search=search_dict)
 
     @classmethod
     async def get_notice_list_service(cls, auth: AuthSchema, search: NoticeQueryParam | None = None, order_by: list[dict] | None = None) -> list[dict]:

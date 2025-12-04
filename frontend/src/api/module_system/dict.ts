@@ -3,9 +3,9 @@ import request from "@/utils/request";
 const API_PATH = "/system/dict";
 
 const DictAPI = {
-  listDictType(query: DictPageQuery) {
+  pageDictType(query: DictPageQuery) {
     return request<ApiResponse<PageResult<DictTable[]>>>({
-      url: `${API_PATH}/type/list`,
+      url: `${API_PATH}/type/page`,
       method: "get",
       params: query,
     });
@@ -66,9 +66,9 @@ const DictAPI = {
     });
   },
 
-  listDictData(query: DictDataPageQuery) {
+  pageDictData(query: DictDataPageQuery) {
     return request<ApiResponse<PageResult<DictDataTable[]>>>({
-      url: `${API_PATH}/data/list`,
+      url: `${API_PATH}/data/page`,
       method: "get",
       params: query,
     });

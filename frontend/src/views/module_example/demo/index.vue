@@ -495,7 +495,7 @@ const curdContentConfig = {
       query.status = query.status === "true";
     }
     query.page_no = 1;
-    query.page_size = 9999;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
       const res = await DemoAPI.getDemoPage(query);

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from app.core.base_schema import BatchSetAvailable
+from app.core.base_params import PaginationQueryParam
 from app.core.exceptions import CustomException
 from app.utils.excel_util import ExcelUtil
 
@@ -47,6 +48,20 @@ class PositionService:
         """
         position_list = await PositionCRUD(auth).get_list_crud(search=search.__dict__, order_by=order_by)
         return [PositionOutSchema.model_validate(position).model_dump() for position in position_list]
+
+    @classmethod
+    async def get_position_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: PositionQueryParam | None = None) -> dict:
+        """
+        分页查询岗位列表
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (PositionQueryParam | None): 查询参数对象
+        返回:
+        - dict: 分页后的岗位列表对象
+        """
+        result_dict = await PositionCRUD(auth).get_page_crud(page=page, search=search.__dict__)
+        return result_dict
 
     @classmethod
     async def create_position_service(cls, auth: AuthSchema, data: PositionCreateSchema) -> dict:

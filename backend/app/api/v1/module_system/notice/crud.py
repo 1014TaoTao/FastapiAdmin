@@ -3,9 +3,10 @@
 from typing import Sequence
 
 from app.core.base_crud import CRUDBase
+from app.core.base_params import PaginationQueryParam
 from ..auth.schema import AuthSchema
 from .model import NoticeModel
-from .schema import NoticeCreateSchema, NoticeUpdateSchema
+from .schema import NoticeCreateSchema, NoticeUpdateSchema, NoticeOutSchema
 
 
 class NoticeCRUD(CRUDBase[NoticeModel, NoticeCreateSchema, NoticeUpdateSchema]):
@@ -47,6 +48,20 @@ class NoticeCRUD(CRUDBase[NoticeModel, NoticeCreateSchema, NoticeUpdateSchema]):
         - Sequence[NoticeModel]: 公告模型实例列表。
         """
         return await self.list(search=search, order_by=order_by, preload=preload)
+    
+    async def get_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list | None = None) -> dict:
+        """
+        分页查询公告列表。
+        
+        参数:
+        - page (PaginationQueryParam | None): 分页查询参数模型。
+        - search (dict | None): 查询参数。
+        - preload (list | None): 预加载关系，未提供时使用模型默认项
+        
+        返回:
+        - dict: 分页公告详情字典。
+        """
+        return await self.page(page=page, search=search, out_schema=NoticeOutSchema, preload=preload)
     
     async def create_crud(self, data: NoticeCreateSchema) -> NoticeModel | None:
         """

@@ -4,7 +4,6 @@ from fastapi import APIRouter, Body, Depends, Path, Request, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 from redis.asyncio.client import Redis
 
-from app.common.request import PaginationService
 from app.common.response import StreamResponse, SuccessResponse
 from app.core.router_class import OperationLogRoute
 from app.utils.common_util import bytes2file_response
@@ -79,14 +78,14 @@ async def get_config_value_by_key_controller(
     return SuccessResponse(data=result_value, msg="根据配置键获取参数值成功")
 
 
-@ParamsRouter.get("/list", summary="获取参数列表", description="获取参数列表")
-async def get_obj_list_controller(
+@ParamsRouter.get("/page", summary="分页获取参数列表", description="分页获取参数列表")
+async def get_obj_page_controller(
     auth: AuthSchema = Depends(AuthPermission(["module_system:param:query"])),
     page: PaginationQueryParam = Depends(),
     search: ParamsQueryParam = Depends(),
 ) -> JSONResponse:
     """
-    获取参数列表
+    分页获取参数列表
     
     参数:
     - auth (AuthSchema): 认证信息模型
@@ -96,8 +95,7 @@ async def get_obj_list_controller(
     返回:
     - JSONResponse: 包含参数列表的 JSON 响应
     """
-    result_dict_list = await ParamsService.get_obj_list_service(auth=auth, search=search, order_by=page.order_by)
-    result_dict = await PaginationService.paginate(data_list= result_dict_list, page_no= page.page_no, page_size = page.page_size)
+    result_dict = await ParamsService.get_obj_page_service(auth=auth, page=page, search=search)
     log.info(f"获取参数列表成功")
     return SuccessResponse(data=result_dict, msg="查询参数列表成功")
 

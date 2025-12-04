@@ -2,6 +2,7 @@
 
 from typing import Any
 from app.core.base_schema import BatchSetAvailable
+from app.core.base_params import PaginationQueryParam
 from app.core.exceptions import CustomException
 from app.utils.excel_util import ExcelUtil
 
@@ -49,6 +50,21 @@ class RoleService:
         """
         role_list = await RoleCRUD(auth).get_list_crud(search=search.__dict__, order_by=order_by)
         return [RoleOutSchema.model_validate(role).model_dump() for role in role_list]
+
+    @classmethod
+    async def get_role_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: RoleQueryParam | None = None) -> dict:
+        """
+        分页查询角色列表
+        
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (RoleQueryParam | None): 查询参数模型
+        
+        返回:
+        - dict: 分页查询结果字典
+        """
+        return await RoleCRUD(auth).get_page_crud(page=page, search=search.__dict__)
 
     @classmethod
     async def create_role_service(cls, auth: AuthSchema, data: RoleCreateSchema) -> dict:

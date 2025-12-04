@@ -3,9 +3,9 @@ import request from "@/utils/request";
 const API_PATH = "/system/position";
 
 const PositionAPI = {
-  listPosition(query?: PositionPageQuery) {
+  pagePosition(query?: PositionPageQuery) {
     return request<ApiResponse<PageResult<PositionTable[]>>>({
-      url: `${API_PATH}/list`,
+      url: `${API_PATH}/page`,
       method: "get",
       params: query,
     });

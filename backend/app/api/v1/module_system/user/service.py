@@ -8,6 +8,7 @@ import pandas as pd
 from app.core.exceptions import CustomException
 from app.utils.hash_bcrpy_util import PwdUtil
 from app.core.base_schema import BatchSetAvailable, UploadResponseSchema
+from app.core.base_params import PaginationQueryParam
 from app.core.logger import log
 from app.utils.common_util import traversal_to_tree
 from app.utils.excel_util import ExcelUtil
@@ -81,6 +82,21 @@ class UserService:
             user_dict_list.append(user_dict)
 
         return user_dict_list
+    
+    @classmethod
+    async def get_user_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: UserQueryParam | None = None) -> dict:
+        """
+        分页查询用户列表
+        
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - page (PaginationQueryParam): 分页查询参数对象。
+        - search (UserQueryParam | None): 查询参数对象。
+        
+        返回:
+        - dict: 包含分页用户详情的字典
+        """
+        return await UserCRUD(auth).get_page_crud(page=page, search=search.__dict__ if search else None)
 
     @classmethod
     async def create_user_service(cls, data: UserCreateSchema, auth: AuthSchema) -> dict:

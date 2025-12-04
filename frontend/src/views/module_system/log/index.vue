@@ -439,7 +439,7 @@ const getMethodType = (method?: string) => {
 async function loadingData() {
   loading.value = true;
   try {
-    const response = await LogAPI.listLog(queryFormData);
+    const response = await LogAPI.pageLog(queryFormData);
     pageTableData.value = response.data.data.items;
     total.value = response.data.data.total;
   } catch (error: any) {
@@ -555,10 +555,10 @@ const curdContentConfig = {
   exportsAction: async (params: any) => {
     const query: any = { ...params };
     query.page_no = 1;
-    query.page_size = 1000;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
-      const res = await LogAPI.listLog(query);
+      const res = await LogAPI.pageLog(query);
       const items = res.data?.data?.items || [];
       const total = res.data?.data?.total || 0;
       all.push(...items);

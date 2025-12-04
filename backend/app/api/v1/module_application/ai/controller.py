@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Path, Body, WebSocket
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from app.common.response import StreamResponse, SuccessResponse
-from app.common.request import PaginationService
 from app.core.base_params import PaginationQueryParam
 from app.core.dependencies import AuthPermission
 from app.core.logger import log

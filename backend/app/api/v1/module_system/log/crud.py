@@ -3,10 +3,11 @@
 from typing import Sequence
 
 from app.core.base_crud import CRUDBase
+from app.core.base_params import PaginationQueryParam
 
 from ..auth.schema import AuthSchema
 from .model import OperationLogModel
-from .schema import OperationLogCreateSchema
+from .schema import OperationLogCreateSchema, OperationLogOutSchema
 
 
 class OperationLogCRUD(CRUDBase[OperationLogModel, OperationLogCreateSchema, OperationLogCreateSchema]):
@@ -59,3 +60,16 @@ class OperationLogCRUD(CRUDBase[OperationLogModel, OperationLogCreateSchema, Ope
         - Sequence[OperationLogModel]: 操作日志列表。
         """
         return await self.list(search=search, order_by=order_by, preload=preload)
+    
+    async def get_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list | None = None) -> dict:
+        """
+        分页查询操作日志列表。
+        
+        参数:
+        - page (PaginationQueryParam): 分页查询参数模型。
+        - search (dict | None): 搜索条件字典。
+        
+        返回:
+        - dict: 包含分页日志详情的字典。
+        """
+        return await self.page(page=page, search=search, out_schema=OperationLogOutSchema, preload=preload)

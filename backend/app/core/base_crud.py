@@ -171,15 +171,21 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             # 获取分页数据
             offset = (page.page_no - 1) * page.page_size
             limit = page.page_size
+            has_next = False
 
-            result: Result = await self.auth.db.execute(sql.offset(offset).limit(limit))
+            # page_size = -1 表示不分页，获取所有数据
+            if page.page_size > 0:
+                sql = sql.limit(limit).offset(offset)
+                has_next = offset + limit < total
+
+            result: Result = await self.auth.db.execute(sql)
             objs = result.scalars().all()
 
             return {
                 "page_no": page.page_no,
                 "page_size": page.page_size,
                 "total": total,
-                "has_next": offset + limit < total,
+                "has_next": has_next,
                 "items": [out_schema.model_validate(obj).model_dump() for obj in objs]
             }
         except Exception as e:

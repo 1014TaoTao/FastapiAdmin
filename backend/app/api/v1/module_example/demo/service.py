@@ -70,11 +70,10 @@ class DemoService:
         """
         search_dict = search.__dict__ if search else {}
         
-        result = await DemoCRUD(auth).page_crud(
+        return await DemoCRUD(auth).page_crud(
             page=page,
             search=search_dict
         )
-        return result
     
     @classmethod
     async def create_service(cls, auth: AuthSchema, data: DemoCreateSchema) -> dict:

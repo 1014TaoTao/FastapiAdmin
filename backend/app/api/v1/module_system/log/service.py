@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from app.core.exceptions import CustomException
+from app.core.base_params import PaginationQueryParam
 from app.utils.excel_util import ExcelUtil
 
 from ..auth.schema import AuthSchema
@@ -50,6 +51,21 @@ class OperationLogService:
         log_list = await OperationLogCRUD(auth).get_list_crud(search=search.__dict__, order_by=order_by)
         log_dict_list = [OperationLogOutSchema.model_validate(log).model_dump() for log in log_list]
         return log_dict_list
+    
+    @classmethod
+    async def get_log_page_service(cls, auth: AuthSchema, page: PaginationQueryParam, search: OperationLogQueryParam | None = None) -> dict:
+        """
+        分页查询日志列表
+        
+        参数:
+        - auth (AuthSchema): 认证信息模型
+        - page (PaginationQueryParam): 分页查询参数模型
+        - search (OperationLogQueryParam | None): 日志查询参数模型
+        
+        返回:
+        - dict: 包含分页日志详情的字典
+        """
+        return await OperationLogCRUD(auth).get_page_crud(page=page, search=search.__dict__ if search else None)
 
     @classmethod
     async def create_log_service(cls, auth: AuthSchema, data: OperationLogCreateSchema) -> dict:

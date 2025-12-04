@@ -3,9 +3,9 @@ import request from "@/utils/request";
 const API_PATH = "/system/log";
 
 const LogAPI = {
-  listLog(query: LogPageQuery) {
+  pageLog(query: LogPageQuery) {
     return request<ApiResponse<PageResult<LogTable[]>>>({
-      url: `${API_PATH}/list`,
+      url: `${API_PATH}/page`,
       method: "get",
       params: query,
     });

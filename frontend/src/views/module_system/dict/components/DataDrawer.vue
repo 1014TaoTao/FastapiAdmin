@@ -503,7 +503,7 @@ async function loadingData() {
   loading.value = true;
   try {
     // 在查询参数中添加 dictType
-    const response = await DictAPI.listDictData(queryFormData);
+    const response = await DictAPI.pageDictData(queryFormData);
     pageTableData.value = response.data.data.items;
     total.value = response.data.data.total;
   } catch (error: any) {
@@ -699,10 +699,10 @@ const curdContentConfig = {
   exportsAction: async (params: any) => {
     const query: any = { ...params };
     query.page_no = 1;
-    query.page_size = 1000;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
-      const res = await DictAPI.listDictData(query);
+      const res = await DictAPI.pageDictData(query);
       const items = res.data?.data?.items || [];
       const total = res.data?.data?.total || 0;
       all.push(...items);

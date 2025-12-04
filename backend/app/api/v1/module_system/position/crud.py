@@ -3,9 +3,10 @@
 from typing import Sequence, Any
 
 from app.core.base_crud import CRUDBase
+from app.core.base_params import PaginationQueryParam
 from ..auth.schema import AuthSchema
 from .model import PositionModel
-from .schema import PositionCreateSchema, PositionUpdateSchema
+from .schema import PositionCreateSchema, PositionUpdateSchema, PositionOutSchema
 
 
 class PositionCRUD(CRUDBase[PositionModel, PositionCreateSchema, PositionUpdateSchema]):
@@ -47,6 +48,20 @@ class PositionCRUD(CRUDBase[PositionModel, PositionCreateSchema, PositionUpdateS
         - Sequence[PositionModel]: 岗位列表。
         """
         return await self.list(search=search, order_by=order_by, preload=preload)
+    
+    async def get_page_crud(self, page: PaginationQueryParam, search: dict | None = None, preload: list[str] | None = None) -> dict:    
+        """
+        分页查询岗位列表。
+        
+        参数:
+        - page (PaginationQueryParam): 分页查询参数模型。
+        - search (dict | None): 搜索条件。
+        - preload (list[str] | None): 预加载关系，未提供时使用模型默认项。
+        
+        返回:
+        - dict: 包含分页结果的字典。
+        """
+        return await self.page(page=page, search=search, out_schema=PositionOutSchema, preload=preload)
 
     async def set_available_crud(self, ids: list[int], status: str) -> None:
         """

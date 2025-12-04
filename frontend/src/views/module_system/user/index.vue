@@ -11,13 +11,8 @@
       <el-col :lg="20" :xs="24">
         <!-- 搜索区域 -->
         <div class="search-container">
-          <el-form
-            ref="queryFormRef"
-            :model="queryFormData"
-            :inline="true"
-            label-suffix=":"
-            @submit.prevent="handleQuery"
-          >
+          <el-form ref="queryFormRef" :model="queryFormData" :inline="true" label-suffix=":"
+            @submit.prevent="handleQuery">
             <el-form-item prop="username" label="账号">
               <el-input v-model="queryFormData.username" placeholder="请输入账号" clearable />
             </el-form-item>
@@ -25,12 +20,7 @@
               <el-input v-model="queryFormData.name" placeholder="请输入用户名" clearable />
             </el-form-item>
             <el-form-item prop="status" label="状态">
-              <el-select
-                v-model="queryFormData.status"
-                placeholder="请选择状态"
-                style="width: 167.5px"
-                clearable
-              >
+              <el-select v-model="queryFormData.status" placeholder="请选择状态" style="width: 167.5px" clearable>
                 <el-option value="0" label="启用" />
                 <el-option value="1" label="停用" />
               </el-select>
@@ -40,37 +30,20 @@
               <DatePicker v-model="dateRange" @update:model-value="handleDateRangeChange" />
             </el-form-item>
             <el-form-item v-if="isExpand" prop="created_id" label="创建人">
-              <UserTableSelect
-                v-model="queryFormData.created_id"
-                @confirm-click="handleConfirm"
-                @clear-click="handleQuery"
-              />
+              <UserTableSelect v-model="queryFormData.created_id" @confirm-click="handleConfirm"
+                @clear-click="handleQuery" />
             </el-form-item>
             <!-- 查询、重置、展开/收起按钮 -->
             <el-form-item class="search-buttons">
-              <el-button
-                v-hasPerm="['module_system:user:query']"
-                type="primary"
-                icon="search"
-                native-type="submit"
-              >
+              <el-button v-hasPerm="['module_system:user:query']" type="primary" icon="search" native-type="submit">
                 查询
               </el-button>
-              <el-button
-                v-hasPerm="['module_system:user:query']"
-                icon="refresh"
-                @click="handleResetQuery"
-              >
+              <el-button v-hasPerm="['module_system:user:query']" icon="refresh" @click="handleResetQuery">
                 重置
               </el-button>
               <!-- 展开/收起 -->
               <template v-if="isExpandable">
-                <el-link
-                  class="ml-3"
-                  type="primary"
-                  underline="never"
-                  @click="isExpand = !isExpand"
-                >
+                <el-link class="ml-3" type="primary" underline="never" @click="isExpand = !isExpand">
                   {{ isExpand ? "收起" : "展开" }}
                   <el-icon>
                     <template v-if="isExpand">
@@ -103,23 +76,14 @@
             <div class="data-table__toolbar--left">
               <el-row :gutter="10">
                 <el-col :span="1.5">
-                  <el-button
-                    v-hasPerm="['module_system:user:create']"
-                    type="success"
-                    icon="plus"
-                    @click="handleOpenDialog('create')"
-                  >
+                  <el-button v-hasPerm="['module_system:user:create']" type="success" icon="plus"
+                    @click="handleOpenDialog('create')">
                     新增
                   </el-button>
                 </el-col>
                 <el-col :span="1.5">
-                  <el-button
-                    v-hasPerm="['module_system:user:delete']"
-                    type="danger"
-                    icon="delete"
-                    :disabled="selectIds.length === 0"
-                    @click="handleDelete(selectIds)"
-                  >
+                  <el-button v-hasPerm="['module_system:user:delete']" type="danger" icon="delete"
+                    :disabled="selectIds.length === 0" @click="handleDelete(selectIds)">
                     批量删除
                   </el-button>
                 </el-col>
@@ -147,35 +111,20 @@
               <el-row :gutter="10">
                 <el-col :span="1.5">
                   <el-tooltip content="导入">
-                    <el-button
-                      v-hasPerm="['module_system:user:import']"
-                      type="info"
-                      icon="upload"
-                      circle
-                      @click="handleOpenImportDialog"
-                    />
+                    <el-button v-hasPerm="['module_system:user:import']" type="info" icon="upload" circle
+                      @click="handleOpenImportDialog" />
                   </el-tooltip>
                 </el-col>
                 <el-col :span="1.5">
                   <el-tooltip content="导出">
-                    <el-button
-                      v-hasPerm="['module_system:user:export']"
-                      type="warning"
-                      icon="download"
-                      circle
-                      @click="handleOpenExportsModal"
-                    />
+                    <el-button v-hasPerm="['module_system:user:export']" type="warning" icon="download" circle
+                      @click="handleOpenExportsModal" />
                   </el-tooltip>
                 </el-col>
                 <el-col :span="1.5">
                   <el-tooltip content="刷新">
-                    <el-button
-                      v-hasPerm="['module_system:user:query']"
-                      type="default"
-                      icon="refresh"
-                      circle
-                      @click="handleRefresh"
-                    />
+                    <el-button v-hasPerm="['module_system:user:query']" type="default" icon="refresh" circle
+                      @click="handleRefresh" />
                   </el-tooltip>
                 </el-col>
               </el-row>
@@ -183,17 +132,8 @@
           </div>
 
           <!-- 表格区域 -->
-          <el-table
-            ref="dataTableRef"
-            v-loading="loading"
-            :data="pageTableData"
-            highlight-current-row
-            class="data-table__content"
-            :height="450"
-            border
-            stripe
-            @selection-change="handleSelectionChange"
-          >
+          <el-table ref="dataTableRef" v-loading="loading" :data="pageTableData" highlight-current-row
+            class="data-table__content" :height="450" border stripe @selection-change="handleSelectionChange">
             <template #empty>
               <el-empty :image-size="80" description="暂无数据" />
             </template>
@@ -258,59 +198,32 @@
             </el-table-column>
             <el-table-column fixed="right" label="操作" align="center" min-width="280">
               <template #default="scope">
-                <el-button
-                  v-hasPerm="['module_system:user:update']"
-                  type="warning"
-                  icon="RefreshLeft"
-                  size="small"
-                  link
-                  :disabled="scope.row.is_superuser === true"
-                  @click="
+                <el-button v-hasPerm="['module_system:user:update']" type="warning" icon="RefreshLeft" size="small" link
+                  :disabled="scope.row.is_superuser === true" @click="
                     scope.row.is_superuser === true
                       ? ElMessage.warning('系统超管角色，不可操作')
                       : hancleResetPassword(scope.row)
-                  "
-                >
+                    ">
                   重置密码
                 </el-button>
-                <el-button
-                  v-hasPerm="['module_system:user:detail']"
-                  type="info"
-                  size="small"
-                  link
-                  icon="document"
-                  @click="handleOpenDialog('detail', scope.row.id)"
-                >
+                <el-button v-hasPerm="['module_system:user:detail']" type="info" size="small" link icon="document"
+                  @click="handleOpenDialog('detail', scope.row.id)">
                   详情
                 </el-button>
-                <el-button
-                  v-hasPerm="['module_system:user:update']"
-                  type="primary"
-                  size="small"
-                  link
-                  icon="edit"
-                  :disabled="scope.row.is_superuser === true"
-                  @click="
+                <el-button v-hasPerm="['module_system:user:update']" type="primary" size="small" link icon="edit"
+                  :disabled="scope.row.is_superuser === true" @click="
                     scope.row.is_superuser === true
                       ? ElMessage.warning('系统超管角色，不可操作')
                       : handleOpenDialog('update', scope.row.id)
-                  "
-                >
+                    ">
                   编辑
                 </el-button>
-                <el-button
-                  v-hasPerm="['module_system:user:delete']"
-                  type="danger"
-                  size="small"
-                  link
-                  icon="delete"
-                  :disabled="scope.row.is_superuser === true"
-                  @click="
+                <el-button v-hasPerm="['module_system:user:delete']" type="danger" size="small" link icon="delete"
+                  :disabled="scope.row.is_superuser === true" @click="
                     scope.row.is_superuser === true
                       ? ElMessage.warning('系统超管角色，不可操作')
                       : handleDelete([scope.row.id])
-                  "
-                >
+                    ">
                   删除
                 </el-button>
               </template>
@@ -319,25 +232,16 @@
 
           <!-- 分页区域 -->
           <template #footer>
-            <pagination
-              v-model:total="total"
-              v-model:page="queryFormData.page_no"
-              v-model:limit="queryFormData.page_size"
-              @pagination="loadingData"
-            />
+            <pagination v-model:total="total" v-model:page="queryFormData.page_no"
+              v-model:limit="queryFormData.page_size" @pagination="loadingData" />
           </template>
         </el-card>
       </el-col>
     </el-row>
 
     <!-- 弹窗区域 -->
-    <el-drawer
-      v-model="dialogVisible.visible"
-      :title="dialogVisible.title"
-      append-to-body
-      :size="drawerSize"
-      @close="handleCloseDialog"
-    >
+    <el-drawer v-model="dialogVisible.visible" :title="dialogVisible.title" append-to-body :size="drawerSize"
+      @close="handleCloseDialog">
       <!-- 详情 -->
       <template v-if="dialogVisible.type === 'detail'">
         <el-descriptions :column="2" border>
@@ -416,20 +320,10 @@
       </template>
       <!-- 新增、编辑表单 -->
       <template v-else>
-        <el-form
-          ref="dataFormRef"
-          :model="formData"
-          :rules="rules"
-          label-suffix=":"
-          label-width="auto"
-          label-position="right"
-        >
+        <el-form ref="dataFormRef" :model="formData" :rules="rules" label-suffix=":" label-width="auto"
+          label-position="right">
           <el-form-item label="账号" prop="username">
-            <el-input
-              v-model="formData.username"
-              :disabled="!!formData.id"
-              placeholder="请输入账号"
-            />
+            <el-input v-model="formData.username" :disabled="!!formData.id" placeholder="请输入账号" />
           </el-form-item>
 
           <el-form-item label="用户名" prop="name">
@@ -453,50 +347,28 @@
           </el-form-item>
 
           <el-form-item label="部门" prop="dept_id">
-            <el-tree-select
-              v-model="formData.dept_id"
-              placeholder="请选择上级部门"
-              :data="deptOptions"
-              :props="{ children: 'children', label: 'label', disabled: 'disabled' }"
-              filterable
-              check-strictly
-              :render-after-expand="false"
-            />
+            <el-tree-select v-model="formData.dept_id" placeholder="请选择上级部门" :data="deptOptions"
+              :props="{ children: 'children', label: 'label', disabled: 'disabled' }" filterable check-strictly
+              :render-after-expand="false" />
           </el-form-item>
 
           <el-form-item label="角色" prop="role_ids">
             <el-select v-model="formData.role_ids" multiple placeholder="请选择角色">
-              <el-option
-                v-for="item in roleOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-                :disabled="item.disabled"
-              />
+              <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value"
+                :disabled="item.disabled" />
             </el-select>
           </el-form-item>
 
           <el-form-item label="岗位" prop="position_ids">
             <el-select v-model="formData.position_ids" multiple placeholder="请选择岗位">
-              <el-option
-                v-for="item in positionOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-                :disabled="item.disabled"
-              />
+              <el-option v-for="item in positionOptions" :key="item.value" :label="item.label" :value="item.value"
+                :disabled="item.disabled" />
             </el-select>
           </el-form-item>
 
           <el-form-item label="密码" prop="password">
-            <el-input
-              v-model="formData.password"
-              :readonly="!!formData.id"
-              placeholder="请输入密码"
-              type="password"
-              show-password
-              clearable
-            />
+            <el-input v-model="formData.password" :readonly="!!formData.id" placeholder="请输入密码" type="password"
+              show-password clearable />
           </el-form-item>
 
           <el-form-item label="是否超管" prop="is_superuser">
@@ -511,25 +383,16 @@
           </el-form-item>
 
           <el-form-item label="描述" prop="description">
-            <el-input
-              v-model="formData.description"
-              :rows="4"
-              :maxlength="100"
-              show-word-limit
-              type="textarea"
-              placeholder="请输入描述"
-            />
+            <el-input v-model="formData.description" :rows="4" :maxlength="100" show-word-limit type="textarea"
+              placeholder="请输入描述" />
           </el-form-item>
         </el-form>
       </template>
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            v-if="dialogVisible.type === 'create' || dialogVisible.type === 'update'"
-            type="primary"
-            @click="handleSubmit"
-          >
+          <el-button v-if="dialogVisible.type === 'create' || dialogVisible.type === 'update'" type="primary"
+            @click="handleSubmit">
             确定
           </el-button>
           <el-button v-else type="primary" @click="handleCloseDialog">确定</el-button>
@@ -539,20 +402,11 @@
     </el-drawer>
 
     <!-- 导入弹窗 -->
-    <ImportModal
-      v-model="importDialogVisible"
-      :content-config="curdContentConfig"
-      @upload="handleUpload"
-    />
+    <ImportModal v-model="importDialogVisible" :content-config="curdContentConfig" @upload="handleUpload" />
 
     <!-- 导出弹窗 -->
-    <ExportModal
-      v-model="exportsDialogVisible"
-      :content-config="curdContentConfig"
-      :query-params="queryFormData"
-      :page-data="pageTableData"
-      :selection-data="selectionRows"
-    />
+    <ExportModal v-model="exportsDialogVisible" :content-config="curdContentConfig" :query-params="queryFormData"
+      :page-data="pageTableData" :selection-data="selectionRows" />
   </div>
 </template>
 
@@ -704,10 +558,10 @@ const curdContentConfig = {
       query.status = query.status === "true";
     }
     query.page_no = 1;
-    query.page_size = 9999;
+    query.page_size = -1;
     const all: any[] = [];
     while (true) {
-      const res = await UserAPI.listUser(query);
+      const res = await UserAPI.pageUser(query);
       const items = res.data?.data?.items || [];
       const total = res.data?.data?.total || 0;
       all.push(...items);
@@ -742,7 +596,7 @@ async function handleRefresh() {
 async function loadingData() {
   loading.value = true;
   try {
-    const response = await UserAPI.listUser(queryFormData);
+    const response = await UserAPI.pageUser(queryFormData);
     pageTableData.value = response.data.data.items;
     total.value = response.data.data.total;
   } catch (error: any) {
@@ -866,7 +720,7 @@ async function handleOpenDialog(type: "create" | "update" | "detail", id?: numbe
   deptOptions.value = formatTree(treeData);
 
   // 获取角色列表
-  const roleResponse = await RoleAPI.listRole();
+  const roleResponse = await RoleAPI.pageRole();
   roleOptions.value = roleResponse.data.data.items
     .filter((item) => item.id !== undefined && item.name !== undefined)
     .map((item) => ({
@@ -877,7 +731,7 @@ async function handleOpenDialog(type: "create" | "update" | "detail", id?: numbe
     .filter((opt) => !opt.disabled);
 
   // 获取岗位列表
-  const positionResponse = await PositionAPI.listPosition();
+  const positionResponse = await PositionAPI.pagePosition();
   positionOptions.value = positionResponse.data.data.items
     .filter((item) => item.id !== undefined && item.name !== undefined)
     .map((item) => ({
