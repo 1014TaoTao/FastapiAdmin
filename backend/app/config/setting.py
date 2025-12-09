@@ -196,6 +196,10 @@ class Settings(BaseSettings):
             return f"mysql+asyncmy://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?charset=utf8mb4"
         elif self.DATABASE_TYPE == "postgres":
             return f"postgresql+asyncpg://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+        elif self.DATABASE_TYPE == "sqlite":
+            return f"sqlite+aiosqlite:///{self.DATABASE_NAME}"
+        elif self.DATABASE_TYPE == "dm":
+            return f"dm+dmPython://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         else:
             raise ValueError(f"数据库驱动不支持: {self.DATABASE_TYPE}, 请选择 请选择 mysql、postgres")
 
@@ -206,6 +210,10 @@ class Settings(BaseSettings):
             return f"mysql+pymysql://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}?charset=utf8mb4"
         elif self.DATABASE_TYPE == "postgres":
             return f"postgresql+psycopg2://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+        elif self.DATABASE_TYPE == "sqlite":
+            return f"sqlite+pysqlite:///{self.DATABASE_NAME}"
+        elif self.DATABASE_TYPE == "dm":
+            return f"dm+dmPython://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         else:
             raise ValueError(f"数据库驱动不支持: {self.DATABASE_TYPE}, 请选择 请选择 mysql、postgres")
     

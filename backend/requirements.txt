@@ -35,6 +35,9 @@ sqlglot[rs]==27.8.0         # sql 解析
 pydantic_validation_decorator==0.1.4    # 模型验证
 loguru==0.7.3
 fastapi-limiter==0.1.6
+# dmPython # 达梦数据库驱动
+# aiosqlite==0.17.0           # sqlite 异步操作数据库
+# motor==3.6.0                # mongodb 驱动
 
 # amqp==5.3.1
 # python-socketio==5.14.3
