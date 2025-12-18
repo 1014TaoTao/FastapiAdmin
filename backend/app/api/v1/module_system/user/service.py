@@ -427,9 +427,6 @@ class UserService:
         data.name = data.username
         create_dict = data.model_dump(exclude_unset=True, exclude={"role_ids", "position_ids"})
         
-        # 设置默认用户类型为普通用户
-        create_dict.setdefault("user_type", "0")
-        
         # 设置创建人ID
         if auth.user and auth.user.id:
             create_dict["created_id"] = auth.user.id

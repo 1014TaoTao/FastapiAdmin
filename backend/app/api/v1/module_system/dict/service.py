@@ -377,18 +377,25 @@ class DictDataService:
     async def create_obj_service(cls, auth: AuthSchema, redis: Redis, data: DictDataCreateSchema) -> dict:
         """
         创建数据字典数据
-        
+
         参数:
         - auth (AuthSchema): 认证信息模型
         - redis (Redis): Redis客户端
         - data (DictDataCreateSchema): 数据字典数据创建模型
-        
+
         返回:
         - dict: 数据字典数据详情字典
         """
-        exist_obj = await DictDataCRUD(auth).get(dict_label=data.dict_label)
-        if exist_obj:
-            raise CustomException(msg='创建失败，该字典数据已存在')
+        # 检查相同字典类型下dict_label是否已存在
+        exist_label_obj = await DictDataCRUD(auth).get(dict_type=data.dict_type, dict_label=data.dict_label)
+        if exist_label_obj:
+            raise CustomException(msg=f'创建失败，该字典类型下的字典标签"{data.dict_label}"已存在')
+        
+        # 检查相同字典类型下dict_value是否已存在
+        exist_value_obj = await DictDataCRUD(auth).get(dict_type=data.dict_type, dict_value=data.dict_value)
+        if exist_value_obj:
+            raise CustomException(msg=f'创建失败，该字典类型下的字典键值"{data.dict_value}"已存在')
+        
         obj = await DictDataCRUD(auth).create_obj_crud(data=data)
 
         redis_key = f"{RedisInitKeyConfig.SYSTEM_DICT.key}:{data.dict_type}"
@@ -427,9 +434,18 @@ class DictDataService:
         if not exist_obj:
             raise CustomException(msg='更新失败，该字典数据不存在')
 
-        if exist_obj.id != id:
-            raise CustomException(msg='更新失败，数据字典数据重复')
-            
+        # 检查相同字典类型下dict_label是否已存在（排除当前记录）
+        if exist_obj.dict_label != data.dict_label:
+            exist_label_obj = await DictDataCRUD(auth).get(dict_type=data.dict_type, dict_label=data.dict_label)
+            if exist_label_obj:
+                raise CustomException(msg=f'更新失败，该字典类型下的字典标签"{data.dict_label}"已存在')
+        
+        # 检查相同字典类型下dict_value是否已存在（排除当前记录）
+        if exist_obj.dict_value != data.dict_value:
+            exist_value_obj = await DictDataCRUD(auth).get(dict_type=data.dict_type, dict_value=data.dict_value)
+            if exist_value_obj:
+                raise CustomException(msg=f'更新失败，该字典类型下的字典键值"{data.dict_value}"已存在')
+        
         # 如果字典类型变更，仅刷新旧类型缓存，不联动字典类型状态
         if exist_obj.dict_type != data.dict_type:
             dict_type = await DictTypeCRUD(auth).get(dict_type=exist_obj.dict_type)

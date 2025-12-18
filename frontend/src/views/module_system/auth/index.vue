@@ -47,7 +47,6 @@
         <div class="auth-panel__brand">
           <div class="auth-panel__logo-wrap">
             <!-- logo -->
-            <!-- <el-image :src="logo" style="width: 84px" /> -->
             <el-image
               :src="configStore.configData?.sys_web_logo?.config_value || ''"
               class="auth-panel__logo"
@@ -182,9 +181,6 @@ onBeforeUnmount(() => {
   height: 100%;
   padding: clamp(1rem, 3vw, 2rem);
   overflow: hidden;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(64, 128, 255, 0.18), transparent 55%),
-    radial-gradient(circle at 80% 80%, rgba(22, 93, 255, 0.16), transparent 50%);
 
   &::before {
     position: fixed;
@@ -218,7 +214,6 @@ onBeforeUnmount(() => {
     box-shadow 0.3s ease;
 
   &:hover {
-    box-shadow: 0 16px 40px rgba(22, 93, 255, 0.18);
     transform: translateY(-2px);
   }
 
@@ -232,7 +227,7 @@ onBeforeUnmount(() => {
   }
 
   @media (prefers-color-scheme: dark) {
-    background-color: rgba(24, 28, 43, 0.8);
+    background-color: rgba(255, 255, 255, 0.6);
     border-color: rgba(64, 128, 255, 0.3);
   }
 }
@@ -263,12 +258,6 @@ onBeforeUnmount(() => {
   color: rgba(20, 40, 80, 0.95);
   text-shadow: 0 4px 16px rgba(15, 60, 110, 0.12);
   animation: featureFade 0.8s ease-out;
-
-  @media (prefers-color-scheme: dark) {
-    // color: rgba(236, 242, 255, 0.92);
-    color: rgba(160, 190, 255, 0.95);
-    text-shadow: none;
-  }
 }
 
 @media (max-width: 768px) {
@@ -284,9 +273,6 @@ onBeforeUnmount(() => {
   .auth-panel {
     width: 100%;
     margin-inline: 0;
-    box-shadow:
-      0 12px 32px rgba(22, 93, 255, 0.18),
-      0 2px 8px rgba(22, 93, 255, 0.12);
   }
 }
 
@@ -302,11 +288,6 @@ onBeforeUnmount(() => {
   letter-spacing: 0.08em;
   background: rgba(22, 93, 255, 0.1);
   border-radius: 999px;
-
-  @media (prefers-color-scheme: dark) {
-    color: rgba(160, 190, 255, 0.95);
-    background: rgba(64, 128, 255, 0.12);
-  }
 }
 
 .auth-feature__dot {
@@ -315,10 +296,6 @@ onBeforeUnmount(() => {
   background: #165dff;
   border-radius: 50%;
   box-shadow: 0 0 12px rgba(22, 93, 255, 0.7);
-
-  @media (prefers-color-scheme: dark) {
-    background: #7aa2ff;
-  }
 }
 
 .auth-feature__title {
@@ -333,10 +310,6 @@ onBeforeUnmount(() => {
   font-size: 1rem;
   line-height: 1.7;
   color: rgba(35, 40, 65, 0.85);
-
-  // @media (prefers-color-scheme: dark) {
-  //   color: rgba(220, 230, 255, 0.75);
-  // }
 }
 
 .auth-feature__highlights {
@@ -352,9 +325,9 @@ onBeforeUnmount(() => {
     align-items: flex-start;
     padding: 0.75rem 1rem;
     font-weight: 500;
-    color: rgba(32, 37, 60, 0.9);
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(64, 128, 255, 0.08);
+    color: rgba(26, 32, 48, 0.9);
+    background: rgba(230, 236, 255, 0.85);
+    border: 1px solid rgba(86, 140, 255, 0.28);
     border-radius: 12px;
     backdrop-filter: blur(6px);
 
@@ -364,18 +337,12 @@ onBeforeUnmount(() => {
       color: rgba(22, 93, 255, 0.8);
     }
   }
+}
 
-  @media (prefers-color-scheme: dark) {
-    li {
-      color: rgba(230, 236, 255, 0.85);
-      background: rgba(18, 22, 36, 0.7);
-      border-color: rgba(98, 149, 255, 0.18);
-
-      span {
-        color: rgba(122, 162, 255, 0.9);
-      }
-    }
-  }
+.dark .auth-feature__highlights li {
+  color: rgba(230, 236, 255, 0.85);
+  background: rgba(26, 32, 48, 0.9);
+  border-color: rgba(22, 93, 255, 0.1);
 }
 
 .auth-panel {
@@ -396,15 +363,6 @@ onBeforeUnmount(() => {
     0 0 0 1px rgba(255, 255, 255, 0.5) inset;
   backdrop-filter: blur(20px);
   animation: panelLift 0.7s ease;
-
-  @media (prefers-color-scheme: dark) {
-    background: rgba(18, 20, 32, 0.88);
-    border-color: rgba(64, 128, 255, 0.25);
-    box-shadow:
-      0 20px 60px rgba(0, 0, 0, 0.6),
-      0 4px 16px rgba(0, 0, 0, 0.4),
-      0 0 0 1px rgba(90, 140, 255, 0.12) inset;
-  }
 }
 
 /* 应用内暗黑主题（例如 html/body 上挂 .dark 类）下的登录表单样式 */
@@ -425,10 +383,6 @@ onBeforeUnmount(() => {
   padding-bottom: 1.25rem;
   margin-bottom: 1.5rem;
   border-bottom: 1px solid rgba(22, 93, 255, 0.06);
-
-  @media (prefers-color-scheme: dark) {
-    border-color: rgba(64, 128, 255, 0.12);
-  }
 }
 
 .auth-panel__logo-wrap {
@@ -537,29 +491,6 @@ onBeforeUnmount(() => {
   font-size: 0.875rem;
   text-align: center;
   border-top: 1px solid rgba(22, 93, 255, 0.06);
-
-  a {
-    margin-left: 0.25rem;
-    color: rgba(22, 93, 255, 0.85);
-    text-decoration: none;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: rgba(22, 93, 255, 1);
-    }
-  }
-
-  @media (prefers-color-scheme: dark) {
-    border-color: rgba(64, 128, 255, 0.12);
-
-    a {
-      color: rgba(140, 170, 255, 0.88);
-
-      &:hover {
-        color: rgba(160, 190, 255, 1);
-      }
-    }
-  }
 }
 
 @keyframes featureFade {
