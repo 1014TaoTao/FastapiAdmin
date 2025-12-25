@@ -97,8 +97,8 @@ export interface ApplicationInfo extends BaseType {
   name?: string;
   access_url?: string;
   icon_url?: string;
-  created_by?: creatorType;
-  updated_by?: updatorType;
+  created_by?: CommonType;
+  updated_by?: CommonType;
 }
 
 /**

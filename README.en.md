@@ -110,7 +110,7 @@ FastapiAdmin
 
 | Type | Technology Stack | Version |
 |------|------------------|---------|
-| Backend | Python | ≥ 3.10 |
+| Backend | Python | 3.12 ≥ 3.10 |
 | Backend | FastAPI | 0.109+ |
 | Frontend | Node.js | ≥ 20.0 |
 | Frontend | Vue3 | 3.3+ |

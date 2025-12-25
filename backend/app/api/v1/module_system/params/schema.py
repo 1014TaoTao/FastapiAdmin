@@ -3,8 +3,8 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from fastapi import Query
 
-from app.core.validator import DateTimeStr
 from app.core.base_schema import BaseSchema
+from app.core.validator import DateTimeStr
 
 
 class ParamsCreateSchema(BaseModel):
@@ -44,16 +44,23 @@ class ParamsQueryParam:
         config_name: str | None = Query(None, description="配置名称"),
         config_key: str | None = Query(None, description="配置键名"),
         config_type: bool | None = Query(None, description="系统内置((True:是 False:否))"),
+        description: str | None = Query(None, description="描述"),
+        status: str | None = Query(None, description="是否启用"),
         created_time: list[DateTimeStr] | None = Query(None, description="创建时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
-        updated_time: list[DateTimeStr] | None = Query(None, description="更新时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
+        updated_time: list[DateTimeStr] | None = Query(None, description="更新时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"])
     ) -> None:
-
+        # 模糊查询字段
         # 模糊查询字段
         self.config_name = ("like", config_name)
         self.config_key = ("like", config_key)
-
         # 精确查询字段
         self.config_type = config_type
+        if description:
+            self.description = ("like", description)
+
+        # 精确查询字段
+        if status:
+            self.status = ("eq", status)
 
         # 时间范围查询
         if created_time and len(created_time) == 2:

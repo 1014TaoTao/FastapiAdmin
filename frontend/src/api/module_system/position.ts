@@ -73,8 +73,8 @@ export interface PositionPageQuery extends PageQuery {
 export interface PositionTable extends BaseType {
   name?: string;
   order?: number;
-  created_by?: creatorType;
-  updated_by?: updatorType;
+  created_by?: CommonType;
+  updated_by?: CommonType;
 }
 
 export interface PositionForm extends BaseFormType {

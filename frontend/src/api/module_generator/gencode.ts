@@ -166,8 +166,8 @@ export interface GenTableSchema extends BaseType {
   sub_table?: GenTableSchema;
   /** 是否为子表 */
   sub?: boolean;
-  created_by?: creatorType;
-  updated_by?: updatorType;
+  created_by?: CommonType;
+  updated_by?: CommonType;
 }
 
 /** 代码生成业务表列模型 */
@@ -212,6 +212,6 @@ export interface GenTableColumnSchema extends BaseType {
   dict_type?: string;
   /** 排序 */
   sort?: number;
-  created_by?: creatorType;
-  updated_by?: updatorType;
+  created_by?: CommonType;
+  updated_by?: CommonType;
 }

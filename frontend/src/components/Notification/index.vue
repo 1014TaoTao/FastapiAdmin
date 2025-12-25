@@ -67,7 +67,7 @@
           <el-icon>
             <User />
           </el-icon>
-          {{ noticeDetail.created_by?.username }}
+          {{ noticeDetail.created_by?.name }}
         </span>
         <span class="ml-2 flex-y-center">
           <el-icon>

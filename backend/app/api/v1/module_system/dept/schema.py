@@ -9,10 +9,10 @@ from app.core.base_schema import BaseSchema
 
 class DeptCreateSchema(BaseModel):
     """部门创建模型"""
-    name: str = Field(..., max_length=40, description="部门名称")
+    name: str = Field(..., max_length=64, description="部门名称")
     order: int = Field(default=1, ge=0, description="显示顺序")
-    code: str | None = Field(default=None, max_length=60, description="部门编码")
-    leader: str | None = Field(default=None, max_length=20, description="部门负责人")
+    code: str | None = Field(default=None, max_length=16, description="部门编码")
+    leader: str | None = Field(default=None, max_length=32, description="部门负责人")
     phone: str | None = Field(default=None, max_length=11, description="手机")
     email: str | None = Field(default=None, max_length=64, description="邮箱")
     parent_id: int | None = Field(default=None, ge=0, description="父部门ID")

@@ -249,6 +249,7 @@
                 立即执行
               </el-button>
               <el-button
+                v-hasPerm="['module_application:job:detail']"
                 type="info"
                 size="small"
                 link
@@ -545,16 +546,10 @@
                 <el-input
                   v-model="formData.trigger_args"
                   placeholder="请输入 * * * * * ? *"
-                  readonly
                   @click="openCron = true"
                 />
               </template>
-              <vue3CronPlus
-                i18n="cn"
-                max-height="500"
-                @change="handlechangeCron"
-                @close="openCron = false"
-              />
+              <vue3CronPlus i18n="cn" @change="handlechangeCron" @close="openCron = false" />
             </el-popover>
           </el-form-item>
           <!-- 开始日期和结束日期 -->

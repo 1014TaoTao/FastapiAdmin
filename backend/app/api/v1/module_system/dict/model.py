@@ -12,8 +12,9 @@ class DictTypeModel(ModelMixin):
     """
     __tablename__: str = "sys_dict_type"
     __table_args__: dict[str, str] = ({'comment': '字典类型表'})
+    __loader_options__: list[str] = []
 
-    dict_name: Mapped[str] = mapped_column(String(255), nullable=False, comment='字典名称')
+    dict_name: Mapped[str] = mapped_column(String(64), nullable=False, comment='字典名称')
     dict_type: Mapped[str] = mapped_column(String(255), nullable=False, unique=True, comment='字典类型')
     
     # 关系定义
@@ -26,6 +27,7 @@ class DictDataModel(ModelMixin):
     """
     __tablename__: str = "sys_dict_data"
     __table_args__: dict[str, str] = ({'comment': '字典数据表'})
+    __loader_options__: list[str] = []
     
     dict_sort: Mapped[int] = mapped_column(Integer, nullable=False, default=0, comment='字典排序')
     dict_label: Mapped[str] = mapped_column(String(255), nullable=False, comment='字典标签')

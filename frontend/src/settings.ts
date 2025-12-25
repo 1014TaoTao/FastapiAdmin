@@ -43,8 +43,6 @@ export const defaultSettings: AppSettings = {
   guideVisible: false,
   /** 是否启动引导 */
   showGuide: true,
-  // 是否启用 AI 助手
-  enableAiAssistant: false,
 };
 
 // 主题色预设 - 现代化配色方案

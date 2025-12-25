@@ -188,8 +188,8 @@ export interface UserInfo extends BaseType {
   position_ids?: positionSelectorType["id"][];
   is_superuser?: boolean;
   last_login?: string;
-  created_by?: creatorType;
-  updated_by?: updatorType;
+  created_by?: CommonType;
+  updated_by?: CommonType;
 }
 
 export interface deptTreeType {

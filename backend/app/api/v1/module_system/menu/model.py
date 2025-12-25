@@ -27,7 +27,7 @@ class MenuModel(ModelMixin):
     name: Mapped[str] = mapped_column(String(50), nullable=False, comment='菜单名称')
     type: Mapped[int] = mapped_column(Integer, nullable=False, default=2, comment='菜单类型(1:目录 2:菜单 3:按钮/权限 4:链接)')
     order: Mapped[int] = mapped_column(Integer, nullable=False, default=999, comment='显示排序')
-    permission: Mapped[str | None] = mapped_column(String(100), comment='权限标识(如:module_system:user:list)')
+    permission: Mapped[str | None] = mapped_column(String(100), comment='权限标识(如:module_system:user:query)')
     icon: Mapped[str | None] = mapped_column(String(50), comment='菜单图标')
     route_name: Mapped[str | None] = mapped_column(String(100), comment='路由名称')
     route_path: Mapped[str | None] = mapped_column(String(200), comment='路由路径')

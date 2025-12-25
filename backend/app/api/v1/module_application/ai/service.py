@@ -4,6 +4,7 @@ from typing import Any, AsyncGenerator
 
 from app.core.exceptions import CustomException
 from app.api.v1.module_system.auth.schema import AuthSchema
+from app.core.logger import log
 from .tools.ai_util import AIClient
 from .schema import McpCreateSchema, McpUpdateSchema, McpOutSchema, ChatQuerySchema, McpQueryParam
 from .crud import McpCRUD
@@ -124,5 +125,8 @@ class McpService:
             async for response in mcp_client.process(query.message):
                 yield response
         finally:
-            # 确保关闭客户端连接
-            await mcp_client.close()
+            # 确保关闭客户端连接，即使在事件循环关闭时也能安全处理
+            try:
+                await mcp_client.close()
+            except Exception as e:
+                log.debug(f"关闭AIClient时发生异常(预期行为，服务可能正在关闭): {str(e)}")

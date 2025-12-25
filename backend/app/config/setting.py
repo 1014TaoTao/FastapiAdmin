@@ -49,7 +49,7 @@ class Settings(BaseSettings):
     CORS_ORIGIN_ENABLE: bool = True    # 是否启用跨域
     # ALLOW_ORIGINS: List[str] = ["*"]   # 允许的域名列表
     ALLOW_ORIGINS: List[str] = [
-        'http://127.0.0.1:8001',
+        'http://localhost:8001',
         'http://localhost:5180',
     ]   # 允许的域名列表
     ALLOW_METHODS: List[str] = ["*"]   # 允许的HTTP方法
@@ -87,7 +87,7 @@ class Settings(BaseSettings):
     EXPIRE_ON_COMMIT: bool = False                         # 是否在提交时过期
 
     # 数据库类型
-    DATABASE_TYPE: Literal['mysql', 'postgres'] = 'mysql'
+    DATABASE_TYPE: Literal['mysql', 'postgres', 'sqlite', 'dm'] = 'mysql'
     
 
     # MySQL/PostgreSQL数据库连接
@@ -197,11 +197,9 @@ class Settings(BaseSettings):
         elif self.DATABASE_TYPE == "postgres":
             return f"postgresql+asyncpg://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         elif self.DATABASE_TYPE == "sqlite":
-            return f"sqlite+aiosqlite:///{self.DATABASE_NAME}"
-        elif self.DATABASE_TYPE == "dm":
-            return f"dm+dmPython://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+            return f"sqlite+aiosqlite:///{self.DATABASE_NAME}.db"
         else:
-            raise ValueError(f"数据库驱动不支持: {self.DATABASE_TYPE}, 请选择 请选择 mysql、postgres")
+            raise ValueError(f"数据库驱动不支持: {self.DATABASE_TYPE}, 异步数据库请选择 mysql、postgres、sqlite")
 
     @property
     def DB_URI(self) -> str:
@@ -211,11 +209,11 @@ class Settings(BaseSettings):
         elif self.DATABASE_TYPE == "postgres":
             return f"postgresql+psycopg2://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         elif self.DATABASE_TYPE == "sqlite":
-            return f"sqlite+pysqlite:///{self.DATABASE_NAME}"
+            return f"sqlite+pysqlite:///{self.DATABASE_NAME}.db"
         elif self.DATABASE_TYPE == "dm":
             return f"dm+dmPython://{self.DATABASE_USER}:{quote_plus(self.DATABASE_PASSWORD)}@{self.DATABASE_HOST}:{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         else:
-            raise ValueError(f"数据库驱动不支持: {self.DATABASE_TYPE}, 请选择 请选择 mysql、postgres")
+            raise ValueError(f"数据库驱动不支持: {self.DATABASE_TYPE}, 同步数据库请选择 mysql、postgres、sqlite、dm")
     
     @property
     def REDIS_URI(self) -> str:

@@ -14,7 +14,7 @@ class DictTypeCreateSchema(BaseModel):
     """
 
     dict_name: str = Field(..., min_length=1, max_length=64, description='字典名称')
-    dict_type: str = Field(..., min_length=1, max_length=100, description='字典类型')
+    dict_type: str = Field(..., min_length=1, max_length=64, description='字典类型')
     status: str = Field(default='0', description='状态（0正常 1停用）')
     description: str | None = Field(default=None, max_length=255, description="描述")
 

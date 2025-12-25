@@ -4,8 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from fastapi import Query
 
-from app.core.validator import DateTimeStr
-from app.core.validator import menu_request_validator
+from app.core.validator import DateTimeStr, menu_request_validator
 from app.core.base_schema import BaseSchema
 
 
@@ -83,20 +82,36 @@ class MenuQueryParam:
         component_path: str | None = Query(None, description="组件路径"),
         type: Literal[1,2,3,4] | None = Query(None, description="菜单类型(1:目录 2:菜单 3:按钮 4:外链)"),
         permission: str | None = Query(None, description="权限标识"),
-        status: str | None = Query(None, description="菜单状态(0:启用 1:禁用)"),
+        description: str | None = Query(None, description="描述"),
+        status: str | None = Query(None, description="是否启用"),
         created_time: list[DateTimeStr] | None = Query(None, description="创建时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
+        updated_time: list[DateTimeStr] | None = Query(None, description="更新时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
+        created_id: int | None = Query(None, description="创建人"),
+        updated_id: int | None = Query(None, description="更新人")
     ) -> None:
-        
         # 模糊查询字段
         self.name = ("like", name)
         self.route_path = ("like", route_path)
         self.component_path = ("like", component_path)
         self.permission = ("like", permission)
-
         # 精确查询字段
         self.type = type
-        self.status = status
+        # 模糊查询字段
+        if description:
+            self.description = ("like", description)
+
+        # 精确查询字段
+        if status:
+            self.status = ("eq", status)
 
         # 时间范围查询
         if created_time and len(created_time) == 2:
             self.created_time = ("between", (created_time[0], created_time[1]))
+        if updated_time and len(updated_time) == 2:
+            self.updated_time = ("between", (updated_time[0], updated_time[1]))
+
+        # 关联查询字段
+        if created_id:
+            self.created_id = ("eq", created_id)
+        if updated_id:
+            self.updated_id = ("eq", updated_id)

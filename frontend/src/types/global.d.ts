@@ -7,6 +7,7 @@ declare global {
     data: T;
     msg: string;
     status_code: number;
+    success: boolean;
   }
 
   /**
@@ -98,8 +99,6 @@ declare global {
     guideVisible: boolean;
     /** 是否启动引导 */
     showGuide: boolean;
-    /** 是否启用AI助手 */
-    enableAiAssistant: boolean;
   }
 
   /**
@@ -134,24 +133,6 @@ declare global {
   interface CommonType {
     id?: number;
     name?: string;
-  }
-
-  /**
-   * 创建人
-   */
-  interface creatorType {
-    id?: number;
-    name?: string;
-    username?: string;
-  }
-
-  /**
-   * 更新人
-   */
-  interface updatorType {
-    id?: number;
-    name?: string;
-    username?: string;
   }
 
   /**

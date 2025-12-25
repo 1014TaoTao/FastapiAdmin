@@ -110,7 +110,24 @@ class AIClient:
         """
         关闭客户端连接
         """
+        import asyncio
+        
+        # 安全关闭OpenAI客户端
         if hasattr(self, 'client'):
-            await self.client.close()
+            try:
+                # 检查事件循环是否仍在运行
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    await self.client.close()
+            except Exception as e:
+                log.debug(f"关闭OpenAI客户端时发生异常: {str(e)}")
+        
+        # 安全关闭HTTP客户端
         if hasattr(self, 'http_client'):
-            await self.http_client.aclose()
+            try:
+                # 检查事件循环是否仍在运行
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    await self.http_client.aclose()
+            except Exception as e:
+                log.debug(f"关闭HTTP客户端时发生异常: {str(e)}")

@@ -13,4 +13,4 @@ async def health_check() -> JSONResponse:
     返回:
     - JSONResponse: 包含健康状态的JSON响应
     """
-    return JSONResponse(content={"msg": "Healthy"}, status_code=200)
+    return JSONResponse(content={"msg": True}, status_code=200)

@@ -67,7 +67,7 @@ class UserModel(ModelMixin, UserMixin):
     __table_args__: dict[str, str] = ({'comment': '用户表'})
     __loader_options__: list[str] = ["dept", "roles", "positions", "created_by", "updated_by"]
 
-    username: Mapped[str] = mapped_column(String(32), nullable=False, unique=True, comment="用户名/登录账号")
+    username: Mapped[str] = mapped_column(String(64), nullable=False, unique=True, comment="用户名/登录账号")
     password: Mapped[str] = mapped_column(String(255), nullable=False, comment="密码哈希")
     name: Mapped[str] = mapped_column(String(32), nullable=False, comment="昵称")
     mobile: Mapped[str | None] = mapped_column(String(11), nullable=True, unique=True, comment="手机号")

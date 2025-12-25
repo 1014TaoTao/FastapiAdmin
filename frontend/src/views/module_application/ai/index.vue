@@ -81,8 +81,11 @@
                 </strong>
               </div>
               <div class="message-body">
+                <!-- 实时显示累积的消息内容 -->
+                <div class="message-text" v-html="formatMessage(message.content)"></div>
+                <!-- 只有内容为空且loading时才显示打字指示器 -->
                 <div
-                  v-if="message.type === 'assistant' && message.loading"
+                  v-if="message.type === 'assistant' && message.loading && !message.content"
                   class="typing-indicator"
                 >
                   <div class="typing-dots">
@@ -91,7 +94,6 @@
                     <span></span>
                   </div>
                 </div>
-                <div v-else class="message-text" v-html="formatMessage(message.content)"></div>
               </div>
               <div v-if="!message.loading" class="message-actions">
                 <el-button
@@ -168,6 +170,10 @@ import {
   CopyDocument,
   RefreshLeft,
 } from "@element-plus/icons-vue";
+import MarkdownIt from "markdown-it";
+import markdownItHighlightjs from "markdown-it-highlightjs";
+import hljs from "highlight.js";
+import "highlight.js/styles/atom-one-light.css";
 
 // 消息接口
 interface ChatMessage {
@@ -177,6 +183,44 @@ interface ChatMessage {
   timestamp: number;
   loading?: boolean;
 }
+
+// 创建MarkdownIt实例并配置插件
+const md: MarkdownIt = new MarkdownIt({
+  html: true,
+  linkify: true,
+  typographer: true,
+  breaks: true,
+  highlight(str: string, lang: string): string {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return `<pre class="hljs"><code>${hljs.highlight(str, { language: lang, ignoreIllegals: true }).value}</code></pre>`;
+      } catch {
+        // 忽略错误，使用默认渲染
+      }
+    }
+    return `<pre class="hljs"><code>${md.utils.escapeHtml(str)}</code></pre>`;
+  },
+}).use(markdownItHighlightjs);
+
+// 配置链接在新窗口打开
+const defaultRender =
+  md.renderer.rules.link_open ||
+  function (tokens: any[], idx: number, options: any, env: any, self: any) {
+    return self.renderToken(tokens, idx, options, env, self);
+  };
+
+md.renderer.rules.link_open = function (
+  tokens: any[],
+  idx: number,
+  options: any,
+  env: any,
+  self: any
+) {
+  // 添加target="_blank"和rel="noopener noreferrer"属性
+  tokens[idx].attrPush(["target", "_blank"]);
+  tokens[idx].attrPush(["rel", "noopener noreferrer"]);
+  return defaultRender(tokens, idx, options, env, self);
+};
 
 // 响应式数据
 const messages = ref<ChatMessage[]>([]);
@@ -238,6 +282,13 @@ const connectWebSocket = () => {
       console.log("WebSocket 连接已关闭", event.code, event.reason);
       isConnected.value = false;
       connectionStatus.value = "disconnected";
+
+      // 结束所有加载中的助手消息
+      messages.value.forEach((message) => {
+        if (message.type === "assistant" && message.loading) {
+          message.loading = false;
+        }
+      });
     };
 
     ws.onerror = (error) => {
@@ -245,6 +296,13 @@ const connectWebSocket = () => {
       isConnected.value = false;
       connectionStatus.value = "disconnected";
       ElMessage.error("连接失败，请检查服务器状态");
+
+      // 结束所有加载中的助手消息
+      messages.value.forEach((message) => {
+        if (message.type === "assistant" && message.loading) {
+          message.loading = false;
+        }
+      });
     };
   } catch (err) {
     console.error("创建 WebSocket 连接失败:", err);
@@ -261,6 +319,13 @@ const disconnectWebSocket = () => {
   }
   isConnected.value = false;
   connectionStatus.value = "disconnected";
+
+  // 结束所有加载中的助手消息
+  messages.value.forEach((message) => {
+    if (message.type === "assistant" && message.loading) {
+      message.loading = false;
+    }
+  });
 };
 
 // 切换连接状态
@@ -279,11 +344,14 @@ const handleWebSocketMessage = (data: any) => {
   const lastMessage = messages.value[messages.value.length - 1];
 
   if (lastMessage && lastMessage.type === "assistant" && lastMessage.loading) {
-    // 更新加载中的消息
-    lastMessage.content = data.content || data.message || "收到回复";
-    lastMessage.loading = false;
+    // 累积流式响应内容，而不是替换
+    lastMessage.content += data.content || data.message || "";
+
+    // 保持加载状态，直到收到完整响应
+    // 注意：如果后端会发送特定的结束信号，需要根据实际情况调整
+    // 例如：if (data.finish_reason || data.is_complete) { lastMessage.loading = false; }
   } else {
-    // 添加新的助手消息
+    // 添加新的助手消息（仅当没有加载中的助手消息时）
     addMessage("assistant", data.content || data.message || "收到回复");
   }
 
@@ -295,6 +363,12 @@ const sendMessage = async () => {
   const message = inputMessage.value.trim();
   if (!message || !isConnected.value || sending.value) {
     return;
+  }
+
+  // 结束上一条助手消息的加载状态（如果存在）
+  const lastMessage = messages.value[messages.value.length - 1];
+  if (lastMessage && lastMessage.type === "assistant" && lastMessage.loading) {
+    lastMessage.loading = false;
   }
 
   // 添加用户消息
@@ -398,12 +472,8 @@ const scrollToBottom = () => {
 const formatMessage = (content: string) => {
   if (!content) return "";
 
-  // 简单的 Markdown 支持
-  return content
-    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.*?)\*/g, "<em>$1</em>")
-    .replace(/`(.*?)`/g, "<code>$1</code>")
-    .replace(/\n/g, "<br>");
+  // 使用markdown-it进行完整的Markdown渲染
+  return md.render(content);
 };
 
 // 生成唯一ID

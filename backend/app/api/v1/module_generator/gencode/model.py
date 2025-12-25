@@ -8,7 +8,6 @@ from app.config.setting import settings
 from app.core.base_model import ModelMixin, UserMixin
 from app.utils.common_util import SqlalchemyUtil
 
-
 class GenTableModel(ModelMixin, UserMixin):
     """
     代码生成表

@@ -5,15 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.core.validator import DateTimeStr
 
 
-class UserInfoSchema(BaseModel):
-    """用户信息模型"""
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int | None = Field(default=None, description="用户ID")
-    name: str | None = Field(default=None, description="用户姓名")
-    username: str | None = Field(default=None, description="用户名")
-
-
 class CommonSchema(BaseModel):
     """通用信息模型"""
     model_config = ConfigDict(from_attributes=True)
@@ -39,9 +30,9 @@ class UserBySchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     created_id: int | None = Field(default=None, description="创建人ID")
-    created_by: UserInfoSchema | None = Field(default=None, description="创建人信息")
+    created_by: CommonSchema | None = Field(default=None, description="创建人信息")
     updated_id: int | None = Field(default=None, description="更新人ID")
-    updated_by: UserInfoSchema | None = Field(default=None, description="更新人信息")
+    updated_by: CommonSchema | None = Field(default=None, description="更新人信息")
 
 
 class BatchSetAvailable(BaseModel):

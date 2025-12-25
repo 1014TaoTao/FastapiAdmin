@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from fastapi import Query
-from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator, model_validator
 from urllib.parse import urlparse
 
-from app.core.validator import DateTimeStr, mobile_validator
+from app.core.validator import DateTimeStr, email_validator, mobile_validator
 from app.core.base_schema import BaseSchema, CommonSchema, UserBySchema
 from app.core.validator import DateTimeStr
 from app.api.v1.module_system.menu.schema import MenuOutSchema
@@ -13,7 +13,7 @@ from app.api.v1.module_system.role.schema import RoleOutSchema
 
 class CurrentUserUpdateSchema(BaseModel):
     """基础用户信息"""
-    name: str | None = Field(default=None, max_length=32, description="名称")
+    name: str | None = Field(default=None, description="名称")
     mobile: str | None = Field(default=None, description="手机号")
     email: EmailStr | None = Field(default=None, description="邮箱")
     gender: str | None = Field(default=None, description="性别")
@@ -23,6 +23,13 @@ class CurrentUserUpdateSchema(BaseModel):
     @classmethod
     def validate_mobile(cls, value: str | None):
         return mobile_validator(value)
+    
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str | None):
+        if not value:
+            return value
+        return email_validator(value)
 
     @field_validator("avatar")
     @classmethod
@@ -33,14 +40,20 @@ class CurrentUserUpdateSchema(BaseModel):
         if parsed.scheme in ("http", "https") and parsed.netloc:
             return value
         raise ValueError("头像地址需为有效的HTTP/HTTPS URL")
+    
+    @model_validator(mode="after")
+    def check_model(self):
+        if self.name and len(self.name) > 32:
+            raise ValueError("名称长度不能超过32个字符")
+        return self
 
 
 class UserRegisterSchema(BaseModel):
     """注册"""
-    name: str | None = Field(default=None, max_length=32, description="名称")
+    name: str | None = Field(default=None, description="名称")
     mobile: str | None = Field(default=None, description="手机号")
-    username: str = Field(..., max_length=32, description="账号")
-    password: str = Field(..., max_length=128, description="密码哈希值")
+    username: str = Field(..., description="账号")
+    password: str = Field(..., description="密码哈希值")
     role_ids: list[int] | None = Field(default=[1], description='角色ID')
     created_id: int | None = Field(default=1, description='创建人ID')
     description: str | None = Field(default=None, max_length=255, description="备注")
@@ -49,7 +62,7 @@ class UserRegisterSchema(BaseModel):
     @classmethod
     def validate_mobile(cls, value: str | None):
         return mobile_validator(value)
-
+    
     @field_validator("username")
     @classmethod
     def validate_username(cls, value: str):
@@ -61,6 +74,18 @@ class UserRegisterSchema(BaseModel):
         if not re.match(r"^[A-Za-z][A-Za-z0-9_.-]{2,31}$", v):
             raise ValueError("账号需字母开头，3-32位，仅含字母/数字/_ . -")
         return v
+    
+    @model_validator(mode="after")
+    def check_model(self):
+        if self.name and len(self.name) > 32:
+            raise ValueError("名称长度不能超过32个字符")
+        if self.username and len(self.username) > 32:
+            raise ValueError("账号长度不能超过32个字符")
+        if self.description and len(self.description) > 255:
+            raise ValueError("备注长度不能超过255个字符")
+        if self.password and len(self.password) > 128:
+            raise ValueError("密码长度不能超过128个字符")
+        return self
 
 
 class UserForgetPasswordSchema(BaseModel):

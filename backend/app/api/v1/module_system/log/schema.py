@@ -4,8 +4,8 @@ import re
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from fastapi import Query
 
-from app.core.validator import DateTimeStr
 from app.core.base_schema import BaseSchema, UserBySchema
+from app.core.validator import DateTimeStr
 
 
 class OperationLogCreateSchema(BaseModel):
@@ -72,26 +72,36 @@ class OperationLogQueryParam:
         request_method: str | None = Query(None, description="请求方法"),
         request_ip: str | None = Query(None, description="请求IP"),
         response_code: int | None = Query(None, description="响应状态码"),
+        description: str | None = Query(None, description="描述"),
+        status: str | None = Query(None, description="是否启用"),
         created_time: list[DateTimeStr] | None = Query(None, description="创建时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
         updated_time: list[DateTimeStr] | None = Query(None, description="更新时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
         created_id: int | None = Query(None, description="创建人"),
-        updated_id: int | None = Query(None, description="更新人"),
+        updated_id: int | None = Query(None, description="更新人")
     ) -> None:
-        
         # 模糊查询字段
         self.request_path = ("like", f"%{request_path}%") if request_path else None
-        
         # 精确查询字段
-        self.created_id = created_id
-        self.updated_id = updated_id
         self.request_method = request_method
         self.request_ip = request_ip
         self.response_code = response_code
         self.type = type
-        
-        # 时间范围查询 - 增加对单个时间参数的处理
+        # 模糊查询字段
+        if description:
+            self.description = ("like", description)
+
+        # 精确查询字段
+        if status:
+            self.status = ("eq", status)
+
+        # 时间范围查询
         if created_time and len(created_time) == 2:
             self.created_time = ("between", (created_time[0], created_time[1]))
         if updated_time and len(updated_time) == 2:
             self.updated_time = ("between", (updated_time[0], updated_time[1]))
-        
+
+        # 关联查询字段
+        if created_id:
+            self.created_id = ("eq", created_id)
+        if updated_id:
+            self.updated_id = ("eq", updated_id)

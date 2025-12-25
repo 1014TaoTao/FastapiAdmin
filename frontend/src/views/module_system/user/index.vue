@@ -266,11 +266,7 @@
                   size="small"
                   link
                   :disabled="scope.row.is_superuser === true"
-                  @click="
-                    scope.row.is_superuser === true
-                      ? ElMessage.warning('系统超管角色，不可操作')
-                      : hancleResetPassword(scope.row)
-                  "
+                  @click="hancleResetPassword(scope.row)"
                 >
                   重置密码
                 </el-button>
@@ -291,11 +287,7 @@
                   link
                   icon="edit"
                   :disabled="scope.row.is_superuser === true"
-                  @click="
-                    scope.row.is_superuser === true
-                      ? ElMessage.warning('系统超管角色，不可操作')
-                      : handleOpenDialog('update', scope.row.id)
-                  "
+                  @click="handleOpenDialog('update', scope.row.id)"
                 >
                   编辑
                 </el-button>
@@ -306,11 +298,7 @@
                   link
                   icon="delete"
                   :disabled="scope.row.is_superuser === true"
-                  @click="
-                    scope.row.is_superuser === true
-                      ? ElMessage.warning('系统超管角色，不可操作')
-                      : handleDelete([scope.row.id])
-                  "
+                  @click="handleDelete([scope.row.id])"
                 >
                   删除
                 </el-button>

@@ -126,12 +126,12 @@ class JobLogQueryParam:
     """定时任务查询参数"""
 
     def __init__(
-            self,
-            job_id: int | None = Query(None, description="定时任务ID"),
-            job_name: str | None = Query(None, description="任务名称"),
-            status: str | None = Query(None, description="状态: 正常,失败"),
-            created_time: list[DateTimeStr] | None = Query(None, description="创建时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
-            updated_time: list[DateTimeStr] | None = Query(None, description="更新时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
+        self,
+        job_id: int | None = Query(None, description="定时任务ID"),
+        job_name: str | None = Query(None, description="任务名称"),
+        status: str | None = Query(None, description="状态: 正常,失败"),
+        created_time: list[DateTimeStr] | None = Query(None, description="创建时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
+        updated_time: list[DateTimeStr] | None = Query(None, description="更新时间范围", examples=["2025-01-01 00:00:00", "2025-12-31 23:59:59"]),
     ) -> None:
         # 定时任务ID查询
         self.job_id = job_id

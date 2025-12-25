@@ -164,8 +164,8 @@ export interface JobTable extends BaseType {
   trigger_args?: string;
   start_date?: string;
   end_date?: string;
-  created_by?: creatorType;
-  updated_by?: updatorType;
+  created_by?: CommonType;
+  updated_by?: CommonType;
 }
 
 export interface JobForm extends BaseFormType {

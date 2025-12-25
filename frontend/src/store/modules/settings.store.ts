@@ -13,7 +13,6 @@ interface SettingsState {
   showWatermark: boolean;
   showSettings: boolean;
   showGuide: boolean; // 引导功能开关
-  enableAiAssistant: boolean;
 
   // 桌面端工具显示设置
   showMenuSearch: boolean;
@@ -49,12 +48,6 @@ export const useSettingsStore = defineStore("setting", () => {
   const showWatermark = useStorage<boolean>(
     SETTINGS_KEYS.SHOW_WATERMARK,
     defaultSettings.showWatermark
-  );
-
-  // 是否启用 AI 助手
-  const enableAiAssistant = useStorage<boolean>(
-    "vea:ui:enable_ai_assistant",
-    defaultSettings.enableAiAssistant
   );
 
   // 是否显示系统设置
@@ -123,7 +116,6 @@ export const useSettingsStore = defineStore("setting", () => {
     showNotification,
     sidebarColorScheme,
     layout,
-    enableAiAssistant,
   } as const;
 
   // 🎯 监听器 - 主题变化
@@ -197,7 +189,6 @@ export const useSettingsStore = defineStore("setting", () => {
     showWatermark.value = defaultSettings.showWatermark;
     showSettings.value = defaultSettings.showSettings;
     showGuide.value = defaultSettings.showGuide;
-    enableAiAssistant.value = defaultSettings.enableAiAssistant;
 
     // 桌面端工具设置
     showMenuSearch.value = defaultSettings.showMenuSearch;
@@ -223,7 +214,6 @@ export const useSettingsStore = defineStore("setting", () => {
     showWatermark,
     showSettings,
     showGuide,
-    enableAiAssistant,
 
     // 🎯 桌面端工具状态
     showMenuSearch,

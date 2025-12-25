@@ -83,8 +83,8 @@ export interface NoticeTable extends BaseType {
   notice_title?: string;
   notice_type?: string;
   notice_content?: string;
-  created_by?: creatorType;
-  updated_by?: updatorType;
+  created_by?: CommonType;
+  updated_by?: CommonType;
 }
 
 export interface NoticeForm extends BaseFormType {

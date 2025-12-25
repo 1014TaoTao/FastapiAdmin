@@ -63,7 +63,6 @@ class ApplicationQueryParam:
         created_id: int | None = Query(None, description="创建人"),
         updated_id: int | None = Query(None, description="更新人"),
     ) -> None:
-        
         # 模糊查询字段
         self.name = ("like", name) if name else None
 

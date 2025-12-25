@@ -32,4 +32,9 @@ async def websocket_chat_controller(
     except Exception as e:
         log.error(f"WebSocket聊天出错: {str(e)}")
     finally:
-        await websocket.close()
+        try:
+            # 检查WebSocket连接状态，避免重复关闭已关闭的连接
+            if websocket.client_state != websocket.client_state.DISCONNECTED:
+                await websocket.close()
+        except Exception as e:
+            log.debug(f"WebSocket关闭时发生异常(预期行为，服务可能正在关闭): {str(e)}")

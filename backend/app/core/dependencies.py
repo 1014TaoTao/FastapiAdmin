@@ -16,7 +16,6 @@ from app.core.security import OAuth2Schema, decode_access_token
 from app.core.logger import log
 
 from app.api.v1.module_system.user.model import UserModel
-from app.api.v1.module_system.role.model import RoleModel
 from app.api.v1.module_system.user.crud import UserCRUD
 from app.api.v1.module_system.auth.schema import AuthSchema
 

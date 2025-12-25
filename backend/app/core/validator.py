@@ -107,6 +107,27 @@ def mobile_validator(value: str | None) -> str | None:
     return value
 
 
+def code_validator(value: str | None) -> str | None:
+    """
+    编码验证器。
+    
+    参数:
+    - value (str | None): 编码。
+    
+    返回:
+    - str | None: 验证后的编码。
+    
+    异常:
+    - CustomException: 编码格式无效时抛出。
+    """
+    if not value:
+        return value
+    v = value.strip()
+    if not re.match(r"^[A-Za-z][A-Za-z0-9_]{1,15}$", v):
+        raise CustomException(code=RET.ERROR.code, msg="编码需字母开头，允许字母/数字/下划线，长度2-16")
+    return v
+
+
 def menu_request_validator(data):
     """
     菜单请求数据验证器。

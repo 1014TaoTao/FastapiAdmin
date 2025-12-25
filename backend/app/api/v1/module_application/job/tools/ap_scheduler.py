@@ -292,8 +292,15 @@ class SchedulerUtil:
                     return await func(*args, **kwargs)
                 else:
                     # 对于同步函数，使用线程池执行
-                    loop = asyncio.get_running_loop()
-                    return await loop.run_in_executor(None, func, *args, **kwargs)
+                    log.info(f"任务 {job_id} 开始执行同步函数: {func.__name__}, 参数: {args}-{kwargs}")
+                    try:
+                        loop = asyncio.get_running_loop()
+                        result = await loop.run_in_executor(None, func, *args, **kwargs)
+                        log.info(f"任务 {job_id} 同步函数执行完成，结果: {result}")
+                        return result
+                    except Exception as e:
+                        log.error(f"任务 {job_id} 同步函数执行失败: {str(e)}")
+                        raise
             else:
                 # 获取锁失败，记录日志
                 log.info(f"任务 {job_id} 获取执行锁失败，跳过本次执行")
@@ -398,10 +405,17 @@ class SchedulerUtil:
                 raise ValueError("无效的 trigger 触发器")
 
             # 5. 添加任务（使用包装器函数）
+            # 处理任务参数，确保空参数时返回空列表
+            job_args = []
+            if job_info.args:
+                args_str = str(job_info.args).strip()
+                if args_str:
+                    job_args = args_str.split(',')
+            
             job = scheduler.add_job(
                 func=cls._task_wrapper,
                 trigger=trigger,
-                args=[str(job_info.id), job_func] + (str(job_info.args).split(',') if job_info.args else []),
+                args=[job_func, str(job_info.id)] + job_args,
                 kwargs=json.loads(job_info.kwargs) if job_info.kwargs else {},
                 id=str(job_info.id),
                 name=job_info.name,

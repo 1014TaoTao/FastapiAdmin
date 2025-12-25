@@ -55,18 +55,28 @@ def create_async_engine_and_session(
         if not settings.SQL_DB_ENABLE:
             raise CustomException(msg="请先开启数据库连接", data="请启用 app/config/setting.py: SQL_DB_ENABLE")
         # 异步数据库引擎
-        async_engine: AsyncEngine = create_async_engine(
-            url=db_url,
-            echo=settings.DATABASE_ECHO,
-            echo_pool=settings.ECHO_POOL,
-            pool_pre_ping=settings.POOL_PRE_PING,
-            future=settings.FUTURE,
-            pool_recycle=settings.POOL_RECYCLE,
-            pool_size=settings.POOL_SIZE,
-            max_overflow=settings.MAX_OVERFLOW,
-            pool_timeout=settings.POOL_TIMEOUT,
-            pool_use_lifo=settings.POOL_USE_LIFO,
-        )
+        if settings.DATABASE_TYPE == 'sqlite':
+            async_engine = create_async_engine(
+                url=db_url,
+                echo=settings.DATABASE_ECHO,
+                echo_pool=settings.ECHO_POOL,
+                pool_pre_ping=settings.POOL_PRE_PING,
+                future=settings.FUTURE,
+                pool_recycle=settings.POOL_RECYCLE,
+            )
+        else:
+            async_engine = create_async_engine(
+                url=db_url,
+                echo=settings.DATABASE_ECHO,
+                echo_pool=settings.ECHO_POOL,
+                pool_pre_ping=settings.POOL_PRE_PING,
+                future=settings.FUTURE,
+                pool_recycle=settings.POOL_RECYCLE,
+                pool_size=settings.POOL_SIZE,
+                max_overflow=settings.MAX_OVERFLOW,
+                pool_timeout=settings.POOL_TIMEOUT,
+                pool_use_lifo=settings.POOL_USE_LIFO,
+            )
     except Exception as e:
         log.error(f'❌ 数据库连接失败 {e}')
         raise
