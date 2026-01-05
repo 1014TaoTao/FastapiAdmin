@@ -149,7 +149,6 @@ watch(
     width: 100%;
     height: $navbar-height;
     background-color: var(--menu-background);
-    border-bottom: 1px solid var(--el-border-color-lighter);
 
     &-content {
       display: flex;

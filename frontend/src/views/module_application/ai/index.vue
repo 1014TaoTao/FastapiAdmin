@@ -1,5 +1,5 @@
 <template>
-  <div class="chatgpt-container">
+  <div class="app-container">
     <!-- 主聊天区域 -->
     <div class="main-chat">
       <!-- 顶部导航栏 -->
@@ -513,13 +513,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.chatgpt-container {
-  display: flex;
-  height: calc(100vh - 120px);
-  overflow: hidden;
-  background: var(--el-bg-color);
-}
-
 // 主聊天区域
 .main-chat {
   position: relative;
@@ -841,9 +834,8 @@ onUnmounted(() => {
     }
   }
 
-  // 输入区域
   .chat-input {
-    position: fixed;
+    position: absolute;
     right: 0;
     bottom: 0;
     left: 0;
@@ -851,9 +843,12 @@ onUnmounted(() => {
     padding: 16px 24px 24px;
     background: var(--el-bg-color);
     border-top: 1px solid var(--el-border-color-light);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
 
     .input-wrapper {
-      max-width: 800px;
+      width: 100%;
+      max-width: 1000px;
       margin: 0 auto;
 
       .input-container {
@@ -871,9 +866,10 @@ onUnmounted(() => {
 
         .message-input {
           :deep(.el-textarea__inner) {
-            padding: 16px 60px 16px 16px;
+            min-height: 52px;
+            padding: 18px 70px 18px 20px;
             font-size: 15px;
-            line-height: 1.5;
+            line-height: 1.6;
             resize: none;
             background: transparent;
             border: none;
@@ -888,12 +884,20 @@ onUnmounted(() => {
 
         .send-button {
           position: absolute;
-          right: 12px;
-          bottom: 12px;
-          width: 32px;
-          height: 32px;
-          min-height: 32px;
+          right: 10px;
+          bottom: 10px;
+          width: 40px;
+          height: 40px;
+          min-height: 40px;
           padding: 0;
+          border-radius: 50%;
+          box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+          transition: all 0.2s ease;
+
+          &:hover {
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+            transform: translateY(-2px);
+          }
         }
       }
 

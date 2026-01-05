@@ -179,36 +179,38 @@
                 </ElButton>
               </div>
             </template>
-            <ElRow v-if="quickLinks.length > 0" :gutter="8">
-              <ElCol v-for="(item, index) in quickLinks" :key="index" :span="6" class="group mb-4">
-                <ElButton
-                  plain
-                  type="default"
-                  class="w-full relative"
+            <ElRow v-if="quickLinks.length > 0" :gutter="12">
+              <ElCol v-for="(item, index) in quickLinks" :key="index" :span="6" class="mb-4">
+                <ElCard
+                  shadow="hover"
+                  class="h-full transition-all duration-300 hover:scale-[1.02] cursor-pointer relative"
                   @click="handleQuickLinkClick(item)"
                 >
+                  <div class="flex flex-col items-center justify-center py-1 px-1">
+                    <div class="text-2xl mb-1">
+                      <el-icon
+                        v-if="item.icon && item.icon.startsWith('el-icon')"
+                        :color="getRandomColor()"
+                      >
+                        <component :is="item.icon.replace('el-icon-', '')" />
+                      </el-icon>
+                      <div
+                        v-else-if="item.icon"
+                        :class="`i-svg:${item.icon}`"
+                        :style="{ color: getRandomColor() }"
+                      />
+                      <div v-else :class="`i-svg:menu`" :style="{ color: getRandomColor() }" />
+                    </div>
+                    <div class="text-center text-sm font-medium">{{ item.title }}</div>
+                  </div>
                   <el-icon
-                    v-if="item.icon && item.icon.startsWith('el-icon')"
-                    :color="getRandomColor()"
-                  >
-                    <component :is="item.icon.replace('el-icon-', '')" />
-                  </el-icon>
-                  <div
-                    v-else-if="item.icon"
-                    :class="`i-svg:${item.icon} mr-2`"
-                    :style="{ color: getRandomColor() }"
-                  />
-                  <div v-else :class="`i-svg:menu mr-2`" :style="{ color: getRandomColor() }" />
-
-                  <span>{{ item.title }}</span>
-                  <el-icon
-                    color="var(--el-color-danger)"
-                    class="absolute top-0 right-0 opacity-0 group-hover:opacity-100"
+                    color="var(--el-color-warning)"
+                    class="absolute top-2 right-2 opacity-100"
                     @click.stop="handleDeleteLink(item)"
                   >
-                    <CircleClose />
+                    <StarFilled />
                   </el-icon>
-                </ElButton>
+                </ElCard>
               </ElCol>
             </ElRow>
             <el-empty v-else :image-size="80" description="暂无数据" />
@@ -243,7 +245,7 @@ import NoticeAPI, { NoticeTable } from "@/api/module_system/notice";
 import { ref, onMounted, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { QuestionFilled, Delete, CircleClose } from "@element-plus/icons-vue";
+import { QuestionFilled, Delete, StarFilled } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { quickStartManager, type QuickLink } from "@/utils/quickStartManager";
 

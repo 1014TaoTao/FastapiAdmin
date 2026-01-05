@@ -790,8 +790,6 @@ onUnmounted(() => {
   box-shadow: 0 1px 1px var(--el-box-shadow-light);
 
   .btn {
-    top: 1px;
-    left: 0;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -30,11 +30,14 @@ defineProps({
   background-color: $sidebar-logo-background;
 
   .title {
-    flex-shrink: 0;
+    max-width: 100px;
     margin-left: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 14px;
     font-weight: bold;
     color: $sidebar-logo-text-color;
+    white-space: nowrap;
   }
 }
 </style>
